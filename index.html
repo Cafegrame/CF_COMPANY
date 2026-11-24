@@ -1,0 +1,723 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" id="metaTheme" content="#0b0b12">
+<title>Cafegrame</title>
+<script>(function(){try{var t=localStorage.getItem('cg-theme');if(['light','dark','system'].indexOf(t)<0)t='dark';if(t==='light'||(t==='system'&&matchMedia('(prefers-color-scheme: light)').matches))document.documentElement.classList.add('lt')}catch(e){}})()</script>
+<style>
+:root{color-scheme:dark;--pnl:#13131f;--hov:rgba(255,255,255,.06);--tx:#f2f2f7;--mu:#8a8a9e;--gl:rgba(25,25,38,.62);--ln:rgba(255,255,255,.09);--sh:rgba(0,0,0,.3);--ov:rgba(0,0,0,.7);--ac:#8b7cff;--ac2:#ff3d9a;--acs:rgba(139,124,255,.16);--dg:#ff5c5c;--ok:#00e676;--wn:#ffcc00;--fb:linear-gradient(135deg,rgba(255,255,255,.085),rgba(255,255,255,.025));--fl:rgba(255,255,255,.13);--r:16px}
+:root.lt{color-scheme:light;--pnl:#fff;--hov:rgba(0,0,0,.05);--tx:#111;--mu:#555;--gl:rgba(255,255,255,.74);--ln:rgba(0,0,0,.09);--sh:rgba(0,0,0,.1);--ov:rgba(0,0,0,.4);--ac:#5b4bd6;--ac2:#d61f7a;--acs:rgba(91,75,214,.12);--dg:#c62828;--ok:#00794f;--wn:#9a7b00;--fb:linear-gradient(135deg,rgba(255,255,255,.92),rgba(255,255,255,.6));--fl:rgba(30,10,60,.15)}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Segoe UI',system-ui,-apple-system,sans-serif;background:#0b0b12;color:var(--tx);min-height:100vh;overflow-x:hidden;-webkit-tap-highlight-color:transparent}
+:root.lt body{background:#e6e9ef}
+body::before,body::after{content:'';position:fixed;inset:0;z-index:-1;pointer-events:none;transition:opacity .4s}
+body::before{background:linear-gradient(160deg,#0b0b12,#14141f)}
+body::after{background:linear-gradient(160deg,#e6e9ef,#f5f7fa);opacity:0}
+:root.lt body::before{opacity:0}:root.lt body::after{opacity:1}
+body.lock{overflow:hidden}
+button,input{font:inherit;color:inherit}button{cursor:pointer}button:disabled{opacity:.45;cursor:default}
+[hidden]{display:none!important}
+:focus-visible{outline:2px solid var(--ac);outline-offset:2px}
+.vh{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+.app{display:flex;flex-direction:column;height:100vh;height:100dvh;padding:12px;gap:12px;max-width:1000px;margin:0 auto}
+.top{background:var(--gl);backdrop-filter:blur(16px);border:1px solid var(--ln);border-radius:var(--r);padding:12px 20px;display:flex;align-items:center;justify-content:space-between;flex-shrink:0;box-shadow:0 4px 30px var(--sh)}
+.bg{display:flex;align-items:center}
+.brand{font-weight:800;font-size:22px;line-height:1;letter-spacing:1px}
+.dot{width:32px;height:32px;border:0;background:0;padding:0;border-radius:50%;display:flex;align-items:center;justify-content:center;margin-left:-8px}
+.dot::before{content:'';width:10px;height:10px;border-radius:50%;background:var(--mu);transform:translateY(1px);transition:.3s}
+.dot.red::before{background:var(--dg);box-shadow:0 0 10px var(--dg)}
+.dot.yellow::before{background:var(--wn);box-shadow:0 0 10px var(--wn)}
+.dot.green::before{background:var(--ok);box-shadow:0 0 10px var(--ok)}
+.gear{width:42px;height:42px;border-radius:50%;background:var(--gl);border:1px solid var(--ln);display:flex;align-items:center;justify-content:center;font-size:20px;transition:transform .2s}
+.gear:hover{transform:rotate(45deg) scale(1.05)}
+.toast{position:fixed;top:84px;left:50%;transform:translate(-50%,-8px);opacity:0;pointer-events:none;z-index:400;max-width:90vw;text-align:center;background:var(--gl);backdrop-filter:blur(16px);border:1px solid var(--ln);border-radius:12px;padding:10px 16px;font-size:14px;transition:.25s}
+.toast.on{opacity:1;transform:translate(-50%,0)}
+.bar{margin-top:auto;flex-shrink:0;display:grid;grid-template-areas:"np ct vl";grid-template-columns:minmax(140px,1fr) minmax(250px,2fr) minmax(120px,1fr);align-items:center;gap:16px;padding:12px 18px;border-radius:var(--r);background:var(--gl);backdrop-filter:blur(16px);border:1px solid var(--ln);box-shadow:0 4px 30px var(--sh);transition:border-color .4s,box-shadow .4s}
+body.playing .bar{border-color:var(--ac);box-shadow:0 4px 30px var(--sh),0 0 24px var(--acs)}
+.np{grid-area:np;display:flex;align-items:center;gap:12px;min-width:0}
+.cvr{position:relative;width:48px;height:48px;flex-shrink:0}
+.art{width:48px;height:48px;border-radius:10px;overflow:hidden;display:flex;align-items:center;justify-content:center;background:var(--hov);color:#fff;font-weight:800;font-size:15px}
+.cvr .eq{position:absolute;inset:0;align-items:center;justify-content:center;height:auto;color:#fff;background:rgba(0,0,0,.42);border-radius:10px}
+.npt{min-width:0}
+.npt b{display:block;font-size:15px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.npt span{display:block;font-size:13px;color:var(--mu);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.rt{margin-top:3px;padding:0;border:0;background:0;color:var(--ac);font-size:13px;font-weight:600;text-decoration:underline}
+.ct{grid-area:ct;display:flex;flex-direction:column;gap:8px;min-width:0}
+.tr{display:flex;align-items:center;justify-content:center;gap:6px}
+.ib{width:36px;height:36px;border-radius:50%;border:1px solid transparent;background:0;color:var(--mu);display:flex;align-items:center;justify-content:center;position:relative;flex-shrink:0;transition:.2s}
+.ib:hover:not(:disabled){background:var(--hov);color:var(--tx)}
+.ib:active:not(:disabled){transform:scale(.92)}
+.ib.on{color:var(--ac)}
+.ib.one::after{content:'1';position:absolute;top:2px;right:2px;font-size:9px;font-weight:800;color:var(--ac)}
+.ib svg{width:20px;height:20px;display:block}
+#exp{color:var(--tx)}
+.pb{width:44px;height:44px;border-radius:50%;border:0;background:var(--ac);color:#fff;display:flex;align-items:center;justify-content:center;transition:transform .15s}
+.pb:hover:not(:disabled){transform:scale(1.06)}
+.pb svg{width:22px;height:22px;display:block}
+.sr{display:grid;grid-template-columns:auto minmax(0,1fr) auto;align-items:center;gap:10px}
+.tm{font-size:12px;color:var(--mu);font-variant-numeric:tabular-nums;min-width:38px;text-align:center}
+.vl{grid-area:vl;display:flex;align-items:center;justify-content:flex-end;gap:8px}
+.rg{-webkit-appearance:none;appearance:none;width:100%;height:4px;border-radius:2px;cursor:pointer;background:linear-gradient(90deg,var(--ac) var(--p,0%),var(--ln) var(--p,0%))}
+.rg::-webkit-slider-thumb{-webkit-appearance:none;width:12px;height:12px;border-radius:50%;background:var(--ac);border:0}
+.rg::-moz-range-thumb{width:12px;height:12px;border-radius:50%;background:var(--ac);border:0}
+.rg::-moz-range-track{height:4px;background:0}
+.vl .rg{width:88px}
+.eq{display:inline-flex;align-items:flex-end;gap:2px;height:14px}
+.eq i{width:3px;height:100%;border-radius:2px;background:currentColor;transform-origin:bottom;animation:eqa 1s ease-in-out infinite alternate;animation-play-state:paused}
+.eq i:nth-child(2){animation-delay:.25s}.eq i:nth-child(3){animation-delay:.5s}
+body.playing .eq i{animation-play-state:running}
+@keyframes eqa{from{transform:scaleY(.25)}to{transform:scaleY(1)}}
+dialog.big{position:fixed;inset:0;margin:0;width:100vw;height:100vh;height:100dvh;max-width:none;max-height:none;padding:0;border:0;background:0;overflow:hidden}
+dialog.big::backdrop{background:#0a0713}
+:root.lt dialog.big::backdrop{background:#efe8f8}
+.bs{--h:265;--t:#f7f2fd;--m:#a99cc6;--l:rgba(255,255,255,.14);--g:rgba(255,255,255,.07);position:relative;width:100%;height:100%;color:var(--t);background:radial-gradient(120% 90% at 50% 0%,#170f2b,#0a0713 62%,#05030b)}
+:root.lt .bs{--t:#1a1226;--m:#5f5478;--l:rgba(30,10,60,.14);--g:rgba(255,255,255,.6);background:radial-gradient(120% 90% at 50% 0%,#e8ddf8,#f6f0fd 62%,#fbf8ff)}
+.bbg{position:absolute;inset:0;overflow:hidden;pointer-events:none}
+.au{position:absolute;border-radius:50%;filter:blur(60px);opacity:.5}
+:root.lt .au{opacity:.4}
+.au.a{width:70vmax;height:70vmax;left:-22vmax;top:-26vmax;background:radial-gradient(circle,hsla(var(--h),92%,62%,.55),transparent 68%);animation:f1 24s ease-in-out infinite alternate}
+.au.b{width:60vmax;height:60vmax;right:-20vmax;bottom:-24vmax;background:radial-gradient(circle,hsla(calc(var(--h) + 58),92%,60%,.45),transparent 68%);animation:f2 30s ease-in-out infinite alternate}
+@keyframes f1{to{transform:translate3d(8vmax,6vmax,0) scale(1.12)}}
+@keyframes f2{to{transform:translate3d(-7vmax,-8vmax,0) scale(1.1)}}
+.bsc{position:relative;height:100%;display:flex;flex-direction:column;align-items:center;gap:clamp(12px,2.2vh,22px);padding:14px 20px calc(18px + env(safe-area-inset-bottom));overflow-y:auto;overscroll-behavior:contain;scrollbar-width:thin}
+.btop{width:min(100%,560px);display:flex;align-items:center;justify-content:space-between;gap:12px;flex-shrink:0}
+.bch{width:44px;height:44px;border-radius:14px;border:1px solid var(--l);background:var(--g);backdrop-filter:blur(14px);color:var(--t);display:flex;align-items:center;justify-content:center}
+.bch svg{width:22px;height:22px;display:block}
+.bey{font-size:11px;letter-spacing:.16em;text-transform:uppercase;color:var(--m)}
+.bcn{font-size:12px;color:var(--m);font-variant-numeric:tabular-nums;min-width:44px;text-align:right}
+.baz{margin-top:clamp(2px,3vh,24px);flex-shrink:0}
+.baw{position:relative;width:min(76vw,370px);aspect-ratio:1;border-radius:30px}
+.bgl{position:absolute;inset:-16px;border-radius:44px;filter:blur(34px);opacity:.5;background:radial-gradient(60% 60% at 30% 28%,hsla(var(--h),95%,62%,.9),transparent 70%),radial-gradient(60% 60% at 72% 76%,hsla(calc(var(--h) + 55),95%,60%,.8),transparent 70%)}
+body.playing .bgl{animation:pl 3.6s ease-in-out infinite}
+@keyframes pl{0%,100%{opacity:.45;transform:scale(1)}50%{opacity:.85;transform:scale(1.06)}}
+.bar2{position:relative;width:100%;height:100%;border-radius:30px;overflow:hidden;display:flex;align-items:center;justify-content:center;color:#fff;font-weight:800;font-size:64px;box-shadow:0 26px 60px rgba(0,0,0,.45),inset 0 1px 0 rgba(255,255,255,.22)}
+.bar2 img{width:100%;height:100%;object-fit:cover;display:block}
+body.playing .bar2{animation:br 5.6s ease-in-out infinite}
+@keyframes br{0%,100%{transform:scale(1)}50%{transform:scale(1.016)}}
+.bpov{position:absolute;inset:0;z-index:3;border:0;background:rgba(0,0,0,.32);backdrop-filter:blur(2px);color:#fff;border-radius:30px;display:flex;align-items:center;justify-content:center;opacity:1;transition:opacity .25s,background .25s}
+body.playing .bpov{opacity:0;background:transparent}
+.bpov svg{width:56px;height:56px;filter:drop-shadow(0 4px 16px rgba(0,0,0,.55))}
+.bmt{width:min(100%,560px);display:grid;grid-template-columns:auto minmax(0,1fr) auto;align-items:center;gap:12px;flex-shrink:0}
+.bmx{text-align:center;min-width:0}
+.bmx h2{font-size:clamp(20px,5.2vw,32px);font-weight:800;line-height:1.18;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.bmx p{margin-top:6px;font-size:clamp(13px,3.4vw,16px);color:var(--m);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.vote{width:52px;height:52px;border-radius:16px;border:1px solid var(--l);background:var(--g);backdrop-filter:blur(14px);color:var(--m);display:flex;align-items:center;justify-content:center;transition:transform .15s,color .2s,border-color .2s,background-color .2s}
+.vote:hover{transform:translateY(-2px)}
+.vote:active{transform:scale(.92)}
+.vote svg{width:24px;height:24px;display:block}
+.vote.up.on{color:var(--ok);border-color:var(--ok);background:rgba(0,230,118,.1)}
+.vote.down.on{color:var(--dg);border-color:var(--dg);background:rgba(255,92,92,.1)}
+.bct{display:flex;align-items:center;justify-content:center;gap:clamp(16px,6vw,38px);flex-shrink:0}
+.bsk{width:64px;height:64px;border:0;background:transparent;border-radius:50%;color:var(--t);display:flex;align-items:center;justify-content:center;transition:transform .16s,opacity .2s}
+.bsk:hover:not(:disabled){transform:scale(1.12)}
+.bsk:active:not(:disabled){transform:scale(.9)}
+.bsk svg{width:34px;height:34px;display:block;filter:drop-shadow(0 4px 14px rgba(0,0,0,.45))}
+.bpl{position:relative;width:88px;height:88px;border-radius:50%;border:1px solid var(--l);background:var(--g);backdrop-filter:blur(20px) saturate(150%);color:var(--t);display:flex;align-items:center;justify-content:center;box-shadow:0 16px 40px rgba(0,0,0,.4),inset 0 1px 0 rgba(255,255,255,.28);transition:transform .16s}
+.bpl::after{content:'';position:absolute;inset:-7px;border-radius:50%;border:1px solid hsla(var(--h),92%,70%,.45);opacity:.6;pointer-events:none}
+body.playing .bpl::after{animation:rn 2.4s ease-out infinite}
+@keyframes rn{0%{transform:scale(.96);opacity:.7}100%{transform:scale(1.22);opacity:0}}
+.bpl:hover:not(:disabled){transform:scale(1.05)}
+.bpl:active:not(:disabled){transform:scale(.95)}
+.bpl svg{width:34px;height:34px;display:block}
+.bpr{width:min(100%,520px);flex-shrink:0}
+.brg{-webkit-appearance:none;appearance:none;width:100%;height:6px;border-radius:3px;cursor:pointer;background:linear-gradient(90deg,hsl(var(--h),92%,68%),hsl(calc(var(--h) + 52),92%,64%) var(--p,0%),var(--l) var(--p,0%))}
+.brg::-webkit-slider-thumb{-webkit-appearance:none;width:15px;height:15px;border-radius:50%;background:#fff;border:0;box-shadow:0 0 0 4px hsla(var(--h),92%,66%,.32)}
+.brg::-moz-range-thumb{width:15px;height:15px;border-radius:50%;background:#fff;border:0}
+.brg::-moz-range-track{height:6px;background:0}
+.brg.sm{height:4px}.brg.sm::-webkit-slider-thumb{width:12px;height:12px}
+.btm{display:flex;justify-content:space-between;margin-top:9px;font-size:12px;color:var(--m);font-variant-numeric:tabular-nums}
+.bbt{margin-top:auto;padding-top:10px;display:flex;align-items:center;justify-content:center;gap:clamp(12px,4.4vw,24px);flex-shrink:0}
+.bmn{width:44px;height:44px;border-radius:14px;border:1px solid transparent;background:0;color:var(--m);display:flex;align-items:center;justify-content:center;position:relative}
+.bmn.on{color:hsl(var(--h),92%,72%)}
+.bmn.one::after{content:'1';position:absolute;top:4px;right:5px;font-size:9px;font-weight:800;color:hsl(var(--h),92%,72%)}
+.bmn svg{width:21px;height:21px;display:block}
+.bvl{display:flex;align-items:center;gap:10px}
+.bvl .brg{width:clamp(80px,26vw,130px)}
+@media(max-width:420px){.bvl .brg{display:none}.vote{width:46px;height:46px;border-radius:14px}.vote svg{width:21px;height:21px}.bsk{width:56px;height:56px}.bsk svg{width:30px;height:30px}.bpl{width:80px;height:80px}}
+dialog.md{position:fixed;inset:0;margin:auto;width:min(650px,95vw);height:fit-content;max-width:none;max-height:none;padding:0;border:0;background:0;overflow:visible;color:var(--tx)}
+dialog.md::backdrop{background:var(--ov);backdrop-filter:blur(4px)}
+dialog.md[open]>div{animation:pi .3s ease}
+@keyframes pi{from{transform:translateY(20px);opacity:0}to{transform:translateY(0);opacity:1}}
+.pnl{background:var(--gl);backdrop-filter:blur(24px);border:1px solid var(--ln);border-radius:var(--r);width:100%;max-height:85vh;overflow-y:auto;overscroll-behavior:contain;padding:55px 32px 32px;box-shadow:0 20px 50px var(--sh);position:relative;scrollbar-width:thin}
+.x{position:absolute;top:12px;right:12px;width:36px;height:36px;background:0;border:0;color:var(--mu);font-size:28px;line-height:1;display:flex;align-items:center;justify-content:center;z-index:9}
+.x:hover{color:var(--tx)}
+.blk{margin-bottom:16px}.blk:last-child{margin-bottom:0}
+.gb{width:100%;padding:20px;border-radius:14px;background:var(--fb),var(--gl);backdrop-filter:blur(14px);border:1px solid var(--ln);color:var(--tx);font-size:18px;font-weight:700;box-shadow:0 8px 26px var(--sh),inset 0 1px 0 rgba(255,255,255,.12);transition:transform .18s,border-color .25s}
+.gb:hover:not(:disabled){transform:translateY(-2px);border-color:var(--ac)}
+.mb{display:flex;align-items:center;justify-content:space-between;gap:12px;background:0;border:1px solid var(--ln);border-radius:12px;padding:20px 22px;width:100%;text-align:left;color:var(--tx)}
+.mb:hover{background:var(--hov)}
+.mb[aria-expanded=true]{border-color:var(--ac);background:var(--hov)}
+.mbt{display:flex;flex-direction:column;gap:5px;min-width:0}
+.mbt b{font-size:20px;font-weight:600;line-height:1.2}
+.mbt i{font-style:normal;font-size:13px;font-weight:400;color:var(--mu);line-height:1.35}
+.cv{color:var(--mu);font-size:14px;flex-shrink:0;transition:transform .3s}
+.mb[aria-expanded=true] .cv{transform:rotate(180deg)}
+.oc{display:grid;grid-template-rows:0fr;opacity:0;transition:grid-template-rows .35s,opacity .25s,margin-top .3s}
+.oc.open{grid-template-rows:1fr;opacity:1;margin-top:16px}
+.oi{min-height:0;overflow:hidden}
+.oc.sc .oi{max-height:min(340px,52vh);overflow-y:auto;padding-right:4px;scrollbar-width:thin}
+.ls{width:100%;padding:12px 14px;margin-bottom:10px;border-radius:10px;border:1px solid var(--ln);background:0;color:var(--tx);font-size:15px}
+.ls::placeholder{color:var(--mu)}
+.ls:focus{outline:0;border-color:var(--ac)}
+.op{background:0;border:1px solid var(--ln);border-radius:12px;padding:16px;width:100%;text-align:left;color:var(--tx);margin-bottom:10px;font-size:16px;font-weight:600}
+.op:last-child{margin-bottom:0}
+.op:hover{background:var(--hov)}
+.op.act{border-color:var(--ac);background:var(--acs)}
+.emp{padding:14px;text-align:center;color:var(--mu);font-size:14px}
+.kv{font-size:13px;color:var(--mu);margin-bottom:12px;word-break:break-all}
+.rb{display:flex;gap:10px}
+.ob{flex:1;padding:12px;border-radius:10px;border:1px solid var(--ln);background:0;color:var(--tx);font-size:14px;font-weight:600}
+.ob:hover{background:var(--hov);border-color:var(--ac)}
+.st{text-align:center;font-size:14px;min-height:20px;margin-top:12px;line-height:1.45}
+.st.e{color:var(--dg)}.st.g{color:var(--ok)}.st.w{color:var(--wn)}
+dialog.au2{width:min(440px,94vw)}
+dialog.qsheet{width:min(470px,94vw)}
+.ap{position:relative;padding:42px 26px 26px;border-radius:24px;max-height:88vh;overflow-y:auto;background:var(--gl);backdrop-filter:blur(26px) saturate(140%);border:1px solid var(--ln);box-shadow:0 24px 60px var(--sh),inset 0 1px 0 rgba(255,255,255,.12);scrollbar-width:thin}
+.qopt{position:relative;width:100%;text-align:left;background:0;border:1px solid var(--ln);border-radius:14px;padding:14px 46px 14px 16px;margin-bottom:10px;color:var(--tx);display:flex;flex-direction:column;gap:5px;transition:.2s}
+.qopt:last-child{margin-bottom:0}
+.qopt:hover{background:var(--hov)}
+.qopt .qt{font-size:15px;font-weight:600}
+.qopt .qs{font-size:12.5px;color:var(--mu);line-height:1.4}
+.qopt::after{content:'';position:absolute;right:15px;top:17px;width:18px;height:18px;border-radius:50%;border:1.5px solid var(--mu);transition:.2s}
+.qopt.sel{border-color:var(--ac);background:var(--acs)}
+.qopt.sel::after{background:var(--ac);border-color:var(--ac);box-shadow:inset 0 0 0 3.5px var(--pnl)}
+.dnote{font-size:12.5px;color:var(--mu);text-align:center;padding:4px 0 2px;line-height:1.4}
+.abr{display:flex;align-items:center;justify-content:center;gap:3px;color:var(--tx)}
+.abr b{font-size:clamp(28px,7.8vw,36px);font-weight:800;letter-spacing:.3px;line-height:1}
+.abr i{font-style:normal;font-size:clamp(13px,3.6vw,17px);font-weight:600;letter-spacing:.05em;line-height:1;opacity:.92}
+.asub{margin-top:11px;text-align:center;font-size:14px;color:var(--mu)}
+.ats{display:flex;gap:10px;margin:20px 0 18px}
+.at{flex:1;padding:12px;border-radius:14px;border:1px solid var(--fl);background:var(--fb);backdrop-filter:blur(12px);color:var(--mu);font-size:14px;font-weight:600}
+.at[aria-selected=true]{color:var(--tx);border-color:var(--ac);background:var(--acs)}
+.afs{display:flex;flex-direction:column;gap:12px}
+.gf{position:relative}
+.gf input{width:100%;padding:15px 16px;border-radius:16px;border:1px solid var(--fl);background:var(--fb);backdrop-filter:blur(14px);color:var(--tx);font-size:15px;box-shadow:inset 0 1px 0 rgba(255,255,255,.1);transition:border-color .2s,box-shadow .2s}
+.gf input::placeholder{color:var(--mu)}
+.gf input:focus{outline:0;border-color:var(--ac);box-shadow:0 0 0 3px var(--acs)}
+.gf.eye input{padding-right:52px}
+.eb{position:absolute;right:8px;top:50%;transform:translateY(-50%);width:38px;height:38px;border-radius:12px;border:0;background:0;color:var(--mu);display:flex;align-items:center;justify-content:center}
+.eb:hover{color:var(--tx);background:var(--hov)}
+.eb svg{width:20px;height:20px;display:block}
+.rq{list-style:none;margin-top:14px;padding:14px 16px;border-radius:16px;border:1px solid var(--fl);background:var(--fb);display:flex;flex-direction:column;gap:9px}
+.rq li{display:flex;align-items:center;gap:10px;font-size:13px;color:var(--mu);transition:color .2s}
+.rq b{width:18px;height:18px;border-radius:50%;border:1.5px solid currentColor;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:11px;line-height:1}
+.rq li.ok{color:var(--ok)}
+.rq li.ok b{background:currentColor;border-color:currentColor}
+.rq li.ok b::after{content:'\2713';color:var(--pnl);font-weight:800}
+.asb{width:100%;margin-top:18px;padding:16px;border-radius:16px;border:0;background:linear-gradient(135deg,var(--ac),var(--ac2));color:#fff;font-size:16px;font-weight:700;box-shadow:0 10px 28px var(--acs);transition:transform .16s}
+.asb:hover:not(:disabled){transform:translateY(-2px)}
+dialog.full{position:fixed;inset:0;margin:0;width:100vw;height:100vh;height:100dvh;max-width:none;max-height:none;padding:0;border:0;background:0;overflow:hidden}
+dialog.full::backdrop{background:transparent}
+.fa{position:relative;width:100%;height:100%;overflow-y:auto;overscroll-behavior:contain;display:flex;flex-direction:column;align-items:center;color:var(--tx);background:radial-gradient(90% 60% at 50% -10%,rgba(139,124,255,.16),transparent 60%),linear-gradient(165deg,#101019,#0b0b12 55%,#0e0c18);padding:calc(18px + env(safe-area-inset-top)) 22px calc(30px + env(safe-area-inset-bottom));scrollbar-width:thin}
+:root.lt .fa{background:radial-gradient(90% 60% at 50% -10%,rgba(91,75,214,.12),transparent 60%),linear-gradient(165deg,#f7f5fb,#eef0f6 55%,#f3eefb)}
+.fa .x{position:fixed;top:calc(12px + env(safe-area-inset-top));right:14px}
+.fa h1{margin-top:clamp(14px,7vh,72px);font-size:clamp(26px,7vw,40px);font-weight:800;letter-spacing:.4px;text-align:center;color:var(--tx)}
+.fas{margin-top:9px;font-size:14px;color:var(--mu);text-align:center}
+.fa form{width:min(100%,460px);margin-top:clamp(22px,5vh,48px);display:flex;flex-direction:column;gap:14px}
+.fab{width:100%;padding:17px 16px;border-radius:18px;border:1px solid var(--fl);background:var(--fb);backdrop-filter:blur(14px);color:var(--tx);font-size:15px;font-weight:700;box-shadow:inset 0 1px 0 rgba(255,255,255,.12),0 10px 26px var(--sh);transition:transform .16s,border-color .2s}
+.fab:hover:not(:disabled){transform:translateY(-2px);border-color:var(--ac)}
+.fab.ghost{font-weight:600;color:var(--mu)}
+.fab small{display:block;font-weight:400;font-size:12px;opacity:.72;margin-top:4px}
+.fchip{display:flex;align-items:center;gap:10px;padding:12px 14px;border-radius:14px;border:1px solid var(--fl);background:var(--fb);font-size:13px;color:var(--mu);word-break:break-all}
+.fprog{height:5px;border-radius:3px;background:var(--ln);overflow:hidden}
+.fprog i{display:block;height:100%;width:0;background:linear-gradient(90deg,var(--ac),var(--ac2));transition:width .2s}
+@media(max-width:800px){.bar{grid-template-areas:"np vl" "ct ct";grid-template-columns:minmax(0,1fr) auto;gap:10px;padding:10px 14px}.vl .rg{display:none}.cvr,.art{width:40px;height:40px}}
+@media(max-width:600px){.app{padding:8px;gap:8px}.top{padding:10px 16px}.pnl{padding:50px 20px 20px}.mb{padding:18px}.mbt b{font-size:18px}.gb{padding:18px;font-size:16px}.pb{width:40px;height:40px}.ap{padding:40px 18px 22px}}
+@media(prefers-reduced-motion:reduce){*,*::before,*::after{transition:none!important;animation:none!important}}
+</style>
+</head>
+<body>
+<div class="app">
+<header class="top">
+<div class="bg"><div class="brand">Cafegrame</div><button class="dot" id="dot" type="button"></button></div>
+<button class="gear" id="gear" type="button" aria-haspopup="dialog"><span aria-hidden="true">&#9881;</span></button>
+</header>
+<footer class="bar" id="bar">
+<div class="np">
+<div class="cvr"><span class="art" id="art"></span><span class="eq" aria-hidden="true"><i></i><i></i><i></i></span></div>
+<div class="npt"><b id="nt">&#8212;</b><span id="na"></span><button class="rt" id="retry" type="button" data-t="retry" hidden></button></div>
+</div>
+<div class="ct">
+<div class="tr">
+<button class="ib" id="shuf" type="button" aria-pressed="false" data-tt="shuffle"></button>
+<button class="ib" id="prv" type="button" data-tt="prev"></button>
+<button class="pb" id="ply" type="button" data-tt="play"></button>
+<button class="ib" id="nxt" type="button" data-tt="next"></button>
+<button class="ib" id="rep" type="button" aria-pressed="false" data-tt="repeat"></button>
+</div>
+<div class="sr"><span class="tm" id="ct1">0:00</span><input class="rg" id="sk" type="range" min="0" max="100" step="0.1" value="0" data-tt="seek"><span class="tm" id="ct2">--:--</span></div>
+</div>
+<div class="vl">
+<button class="ib" id="exp" type="button" aria-haspopup="dialog" aria-expanded="false"></button>
+<button class="ib" id="mut" type="button" data-tt="mute"></button>
+<input class="rg" id="vol" type="range" min="0" max="1" step="0.01" value="1" data-tt="volume">
+</div>
+</footer>
+</div>
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+<span class="vh" role="status" aria-live="polite" id="live"></span>
+
+<dialog class="big" id="big" aria-labelledby="bt">
+<div class="bs" id="bs">
+<div class="bbg" aria-hidden="true"><span class="au a"></span><span class="au b"></span></div>
+<div class="bsc">
+<header class="btop"><button class="bch" id="bcl" type="button"></button><span class="bey" data-t="nowPlaying"></span><span class="bcn" id="bcn">&#8212;</span></header>
+<div class="baz"><div class="baw"><span class="bgl" aria-hidden="true"></span><div class="bar2" id="bart"></div><button class="bpov" id="bpov" type="button" data-tt="play"></button></div></div>
+<div class="bmt">
+<button class="vote down" id="vdn" type="button" aria-pressed="false" data-tt="dislike"></button>
+<div class="bmx"><h2 id="bt">&#8212;</h2><p id="ba"></p></div>
+<button class="vote up" id="vup" type="button" aria-pressed="false" data-tt="like"></button>
+</div>
+<div class="bct">
+<button class="bsk" id="bprv" type="button" data-tt="prev"></button>
+<button class="bpl" id="bply" type="button" data-tt="play"></button>
+<button class="bsk" id="bnxt" type="button" data-tt="next"></button>
+</div>
+<div class="bpr"><input class="brg" id="bsk" type="range" min="0" max="100" step="0.1" value="0" data-tt="seek"><div class="btm"><span id="bt1">0:00</span><span id="bt2">--:--</span></div></div>
+<div class="bbt">
+<button class="bmn" id="bshuf" type="button" aria-pressed="false" data-tt="shuffle"></button>
+<div class="bvl"><button class="bmn" id="bmut" type="button" data-tt="mute"></button><input class="brg sm" id="bvol" type="range" min="0" max="1" step="0.01" value="1" data-tt="volume"></div>
+<button class="bmn" id="brep" type="button" aria-pressed="false" data-tt="repeat"></button>
+<button class="bmn" id="bset" type="button" aria-haspopup="dialog" data-tt="qTitle"></button>
+</div>
+</div>
+</div>
+</dialog>
+
+<dialog class="md qsheet" id="qsh" aria-labelledby="qshH">
+<div class="ap">
+<button class="x" id="qshX" type="button"><span aria-hidden="true">&times;</span></button>
+<span class="vh" id="qshH" data-t="qTitle"></span>
+<div class="blk">
+<button class="mb" id="qAcc" type="button" aria-expanded="false" aria-controls="qOpts"><span class="mbt"><b data-t="qTitle"></b><i data-t="qSub"></i></span><span class="cv" aria-hidden="true">&#9660;</span></button>
+<div class="oc" id="qOpts"><div class="oi">
+<button class="qopt" id="qLossless" type="button" role="radio" aria-checked="true"><span class="qt" data-t="qLoss"></span><span class="qs" data-t="qLossSub"></span></button>
+<button class="qopt" id="qSave" type="button" role="radio" aria-checked="false"><span class="qt" data-t="qSave"></span><span class="qs" data-t="qSaveSub"></span></button>
+<button class="qopt" id="qLow" type="button" role="radio" aria-checked="false"><span class="qt" data-t="qLow"></span><span class="qs" data-t="qLowSub"></span></button>
+</div></div>
+</div>
+<div class="blk">
+<button class="mb" id="dAcc" type="button" aria-expanded="false" aria-controls="dOpts"><span class="mbt"><b data-t="dTitle"></b><i data-t="dSub"></i></span><span class="cv" aria-hidden="true">&#9660;</span></button>
+<div class="oc" id="dOpts"><div class="oi">
+<div id="dList"></div>
+<p class="dnote" id="dNote"></p>
+</div></div>
+</div>
+</div>
+</dialog>
+
+<dialog class="md" id="set" aria-labelledby="setH">
+<div class="pnl">
+<button class="x" id="setX" type="button"><span aria-hidden="true">&times;</span></button>
+<span class="vh" id="setH" data-t="settings"></span>
+<div class="blk" id="prof" hidden>
+<button class="mb" id="out" type="button" style="border-color:var(--dg);color:var(--dg)"><span class="mbt"><b data-t="logout"></b><i id="umail" style="color:inherit;opacity:.8"></i></span></button>
+</div>
+<div class="blk"><button class="gb" id="add" type="button" aria-haspopup="dialog"><span data-t="addTrack"></span></button></div>
+<div class="blk">
+<button class="mb" id="thB" type="button" aria-expanded="false" aria-controls="thO"><span class="mbt"><b data-t="theme"></b><i data-t="themeSub"></i></span><span class="cv" aria-hidden="true">&#9660;</span></button>
+<div class="oc" id="thO"><div class="oi">
+<button class="op" type="button" data-th="light" aria-pressed="false"><span data-t="light"></span></button>
+<button class="op" type="button" data-th="dark" aria-pressed="false"><span data-t="dark"></span></button>
+<button class="op" type="button" data-th="system" aria-pressed="false"><span data-t="system"></span></button>
+</div></div>
+</div>
+<div class="blk">
+<button class="mb" id="lgB" type="button" aria-expanded="false" aria-controls="lgO"><span class="mbt"><b data-t="langs"></b><i data-t="langsSub"></i></span><span class="cv" aria-hidden="true">&#9660;</span></button>
+<div class="oc sc" id="lgO"><div class="oi">
+<input class="ls" id="lgs" type="search" data-tp="searchLang" autocomplete="off" spellcheck="false">
+<div id="lgl"></div><div class="emp" id="lge" data-t="noRes" hidden></div>
+</div></div>
+</div>
+<div class="blk">
+<button class="mb" id="stB" type="button" aria-expanded="false" aria-controls="stO"><span class="mbt"><b data-t="storage"></b><i data-t="storageSub"></i></span><span class="cv" aria-hidden="true">&#9660;</span></button>
+<div class="oc" id="stO"><div class="oi"><div class="kv" id="stInfo">Firebase</div><div class="rb"><button class="ob" id="ref" type="button"><span data-t="refresh"></span></button></div></div></div>
+</div>
+</div>
+</dialog>
+
+<dialog class="md au2" id="auth" aria-labelledby="abr">
+<div class="ap">
+<button class="x" id="authX" type="button"><span aria-hidden="true">&times;</span></button>
+<div class="abr" id="abr"><b>Cafegrame</b><i>music</i></div>
+<p class="asub" data-t="auth"></p>
+<div class="ats" role="tablist">
+<button class="at" id="tIn" type="button" role="tab" aria-selected="true"><span data-t="login"></span></button>
+<button class="at" id="tUp" type="button" role="tab" aria-selected="false"><span data-t="register"></span></button>
+</div>
+<form id="af" novalidate>
+<div class="afs">
+<div class="gf"><input type="email" id="ae" autocomplete="email" inputmode="email" data-tp="emailPh"></div>
+<div class="gf eye"><input type="password" id="ap" autocomplete="current-password"><button class="eb" id="aeye" type="button" aria-pressed="false"></button></div>
+</div>
+<ul class="rq" id="rq" hidden>
+<li data-r="len"><b aria-hidden="true"></b><span data-t="r9"></span></li>
+<li data-r="up"><b aria-hidden="true"></b><span data-t="rUp"></span></li>
+<li data-r="dig"><b aria-hidden="true"></b><span data-t="rDig"></span></li>
+<li data-r="sp"><b aria-hidden="true"></b><span data-t="rSpec"></span></li>
+</ul>
+<button class="asb" type="submit" id="asb"><span id="asbl"></span></button>
+<p class="st" id="ast" role="status" aria-live="polite"></p>
+</form>
+</div>
+</dialog>
+
+<dialog class="full" id="addM" aria-labelledby="faH">
+<div class="fa">
+<button class="x" id="addX" type="button"><span aria-hidden="true">&times;</span></button>
+<h1 id="faH" data-t="addTitle">Rawamune Services</h1>
+<p class="fas" data-t="addSub">Cafegrame | &#1044;&#1086;&#1073;&#1072;&#1074;&#1083;&#1077;&#1085;&#1080;&#1077; &#1090;&#1088;&#1077;&#1082;&#1072;</p>
+<form id="addF" novalidate onsubmit="return false">
+<div class="gf"><input type="text" id="fT" maxlength="200" autocomplete="off" data-tp="fTitlePh"></div>
+<div class="gf"><input type="text" id="fA" maxlength="200" autocomplete="off" data-tp="fArtistPh"></div>
+<div class="gf"><input type="text" id="fRel" maxlength="200" autocomplete="off" data-tp="fRelPh"></div>
+<button class="fab" type="button" id="fB"><span data-t="fPick"></span></button>
+<button class="fab ghost" type="button" id="fR"><span data-t="addRel"></span></button>
+<input type="file" id="fF" accept=".mp3,.flac,.wav,.m4a,.aac,.ogg,.opus,audio/mpeg,audio/wav,audio/x-wav,audio/wave,audio/flac,audio/x-flac,audio/mp4,audio/aac,audio/ogg,audio/opus" hidden>
+<div class="fchip" id="fC" hidden></div>
+<div class="fprog" id="fP" hidden><i></i></div>
+<p class="st" id="fS" role="status" aria-live="polite"></p>
+<button class="fab" type="button" id="fImg"><span>&#128444;&#65039; &#1044;&#1086;&#1073;&#1072;&#1074;&#1080;&#1090;&#1100; &#1092;&#1086;&#1090;&#1086;&#1075;&#1088;&#1072;&#1092;&#1080;&#1102;</span><small>&#1054;&#1073;&#1083;&#1086;&#1078;&#1082;&#1072; &#1076;&#1083;&#1103; &#1074;&#1072;&#1096;&#1077;&#1075;&#1086; &#1090;&#1088;&#1077;&#1082;&#1072;.</small></button>
+<input type="file" id="fI" accept=".jpg,.jpeg,.png,.webp,image/jpeg,image/png,image/webp" hidden>
+<div class="fchip" id="fIC" hidden></div>
+</form>
+</div>
+</dialog>
+
+<script>
+window.__e=[];function __s(){var b=document.getElementById('__eb');if(!b){b=document.createElement('div');b.id='__eb';b.style.cssText='position:fixed;top:0;left:0;right:0;z-index:99999;background:#b00020;color:#fff;font:13px/1.45 monospace;padding:10px 12px;white-space:pre-wrap;max-height:70vh;overflow:auto';document.body.appendChild(b)}b.textContent='JS ERROR:\n'+window.__e.join('\n')}
+addEventListener('error',function(ev){window.__e.push(String(ev.message||ev.error)+' @ '+String(ev.filename||'').split('/').pop()+':'+ev.lineno);__s()});
+addEventListener('unhandledrejection',function(ev){window.__e.push('promise: '+String(ev.reason));__s()});
+</script>
+<script type="module">
+const CFG={apiKey:"AIzaSyD33449CM0r014vCdkvisSqWUhyx4TICV8",authDomain:"cafegrame.firebaseapp.com",projectId:"cafegrame",storageBucket:"cafegrame.firebasestorage.app",messagingSenderId:"651256632953",appId:"1:651256632953:web:ab24e1dc03171498a126a8"};
+const S={get(k){try{return localStorage.getItem(k)}catch{return null}},set(k,v){try{localStorage.setItem(k,v)}catch{}}};
+const DEMO=[1,2,3,4,5,6].map(n=>({id:'d'+n,title:['Neon Drift','Midnight Circuit','Glass Horizon','Solar Winds','Echo Chamber','Night Drive'][n-1],artist:'SoundHelix',src:'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-'+n+'.mp3',cover:'',tg:''}));
+const K=['settings','close','theme','light','dark','system','langs','searchLang','noRes','addTrack','storage','refresh','loading','noTracks','loadErr','retry','play','pause','next','prev','shuffle','repeat','repOff','repAll','repOne','volume','mute','unmute','nowPlaying','openP','closeP','auth','emailPh','passIn','passNew','r9','rUp','rDig','rSpec','showPass','hidePass','login','register','wait','done','errCred','errUsed','errMail','err','logout','added','offline','trackBad','themeSub','langsSub','storageSub','errProvider','errNetwork','errMany','errDomain','errRules','seek','addTitle','addSub','fTitlePh','fArtistPh','fPick','fNeedFile','fBadType','fTooBig','fUploading','fNeedStorage','addRel','relSoon','like','dislike','qTitle','qSub','qLoss','qLossSub','qSave','qSaveSub','qLow','qLowSub','dTitle','dSub','dNone','dUnsupported','qCors','tgFail','tgWait','fCompressing','fTooLong','fCompressFail','fRelPh','fRelHint','relDup'];
+const T={};
+T.ru=['Настройки','Закрыть','Настройки темы','Белая тема','Чёрная тема','Системная тема','Настройки языков','Поиск языка…','Ничего не найдено','Добавить трек','Хранилище','Обновить','Загрузка…','Треков нет','Ошибка каталога','Повторить','Воспроизвести','Пауза','Следующий трек','Предыдущий трек','Перемешать','Повтор','Повтор выключен','Повтор всех','Повтор одного','Громкость','Выключить звук','Включить звук','Сейчас играет','Открыть плеер','Свернуть плеер','Авторизация','Введите свою электронную почту','Введите пароль','Придумайте пароль','Минимум 9 символов','Одна заглавная буква','Минимум 1 цифра','Минимум 2 спецсимвола','Показать пароль','Скрыть пароль','Вход','Регистрация','Подождите…','Готово!','Неверный email или пароль','Этот email уже зарегистрирован','Некорректный email','Ошибка','Выйти из аккаунта','Трек добавлен!','Облако недоступно — играет демо','Трек недоступен','Настройки темы для приложения','Настройки языков для приложения','Firebase + Telegram','Включите Email/Password в Firebase Console','Нет связи с сервером','Слишком много попыток','Этот домен не разрешён в Firebase','Нет доступа к базе','Позиция воспроизведения','Rawamune Services','Cafegrame | Добавление трека','Введите название трека','Имя или псевдоним исполнителя','Добавить трек (файл mp3, flac, wav, m4a, aac, ogg или opus)','Сначала выберите аудиофайл','Нужен файл mp3, flac, wav, m4a, aac, ogg или opus','Файл слишком большой (макс. 20 МБ)','Загрузка файла…','Сервер загрузки не настроен','Добавить релиз трека','Раздел релизов скоро появится','Нравится','Не нравится','Настройки воспроизведения','Настройки качества воспроизведения','Lossless качество','Исходное качество трека','Экономия трафика','Режим для экономии трафика интернета','Низкое качество','Пониженное качество звука для экономии трафика','Устройство воспроизведения звука','Выбор устройства воспроизведения','Устройства не найдены','Переключение выхода не поддерживается браузером','Фильтр недоступен для этого трека — играет оригинал','Не удалось получить ссылку из Telegram','Загрузка в Telegram…','Сжатие трека…','Трек слишком длинный — не влезает даже в минимальное качество','Не удалось сжать трек в браузере','Название релиза (необязательно)','Заполни название релиза — трек станет синглом этого релиза','В этом релизе уже есть трек — добавить второй нельзя'];
+T.en=['Settings','Close','Theme Settings','Light Theme','Dark Theme','System Theme','Language Settings','Search language…','Nothing found','Add track','Storage','Refresh','Loading…','No tracks','Catalog error','Retry','Play','Pause','Next track','Previous track','Shuffle','Repeat','Repeat off','Repeat all','Repeat one','Volume','Mute','Unmute','Now playing','Open player','Close player','Authorization','Enter your email','Enter password','Create a password','At least 9 characters','One uppercase letter','At least 1 digit','At least 2 special characters','Show password','Hide password','Sign in','Register','Please wait…','Done!','Wrong email or password','This email is already registered','Invalid email','Error','Sign out of account','Track added!','Cloud unavailable — playing demo','Track unavailable','Theme settings for the app','Language settings for the app','Firebase + Telegram','Enable Email/Password in Firebase Console','No connection to server','Too many attempts','This domain is not allowed in Firebase','Database access denied','Playback position','Rawamune Services','Cafegrame | Add a track','Enter track title','Artist name or alias','Add track (mp3, flac, wav, m4a, aac, ogg or opus file)','Pick an audio file first','Must be an mp3, flac, wav, m4a, aac, ogg or opus file','File too large (max 20 MB)','Uploading file…','Upload server not configured','Add track release','Releases section coming soon','Like','Dislike','Playback settings','Playback quality settings','Lossless quality','Original track quality','Traffic saver','Mode for saving internet traffic','Low quality','Reduced sound quality to save traffic','Sound output device','Choose playback device','No devices found','Output switching not supported by this browser','Filter unavailable for this track — playing original','Could not get link from Telegram','Uploading to Telegram…','Compressing track…','Track too long — does not fit even at minimum quality','Could not compress track in browser','Release title (optional)','Fill a release title — the track becomes this release single','This release already has a track — you cannot add a second one'];
+T.uk=['Налаштування','Закрити','Налаштування теми','Біла тема','Чорна тема','Системна тема','Налаштування мов','Пошук мови…','Нічого не знайдено','Додати трек','Сховище','Оновити','Завантаження…','Треків немає','Помилка каталогу','Повторити','Відтворити','Пауза','Наступний трек','Попередній трек','Перемішати','Повтор','Повтор вимкнено','Повтор усіх','Повтор одного','Гучність','Вимкнути звук','Увімкнути звук','Зараз грає','Відкрити плеєр','Згорнути плеєр','Авторизація','Введіть свою електронну пошту','Введіть пароль','Придумайте пароль','Мінімум 9 символів','Одна велика літера','Мінімум 1 цифра','Мінімум 2 спецсимволи','Показати пароль','Сховати пароль','Вхід','Реєстрація','Зачекайте…','Готово!','Невірний email або пароль','Цей email уже зареєстровано','Некоректний email','Помилка','Вийти з акаунта','Трек додано!','Хмара недоступна — грає демо','Трек недоступний','Налаштування теми для застосунку','Налаштування мов для застосунку','Firebase + Telegram','Увімкніть Email/Password у Firebase Console','Немає зв’язку з сервером','Забагато спроб','Цей домен не дозволено у Firebase','Немає доступу до бази','Позиція відтворення','Rawamune Services','Cafegrame | Додавання треку','Введіть назву треку','Ім’я або псевдонім виконавця','Додати трек (файл mp3, flac, wav, m4a, aac, ogg або opus)','Спочатку оберіть аудіофайл','Потрібен файл mp3, flac, wav, m4a, aac, ogg або opus','Файл завеликий (макс. 20 МБ)','Завантаження файлу…','Сервер завантаження не налаштовано','Додати реліз треку','Розділ релізів з’явиться скоро','Подобається','Не подобається','Налаштування відтворення','Налаштування якості відтворення','Lossless якість','Початкова якість треку','Економія трафіку','Режим для економії трафіку','Низька якість','Знижена якість звуку для економії','Пристрій відтворення звуку','Вибір пристрою відтворення','Пристрої не знайдено','Перемикання виходу не підтримується браузером','Фільтр недоступний для цього треку — грає оригінал','Не вдалося отримати посилання з Telegram','Завантаження в Telegram…'];
+T.az=['Parametrlər','Bağla','Mövzu parametrləri','İşıqlı mövzu','Qaranlıq mövzu','Sistem mövzusu','Dil parametrləri','Dil axtar…','Heç nə tapılmadı','Trek əlavə et','Anbar','Yenilə','Yüklənir…','Trek yoxdur','Kataloq xətası','Yenidən cəhd et','Oxut','Fasilə','Növbəti trek','Əvvəlki trek','Qarışdır','Təkrar','Təkrar söndürülüb','Hamısını təkrarla','Birini təkrarla','Səs səviyyəsi','Səsi söndür','Səsi aç','İndi oxunur','Pleyeri aç','Pleyeri bağla','Avtorizasiya','Elektron poçtunuzu daxil edin','Şifrəni daxil edin','Şifrə yaradın','Ən azı 9 simvol','Bir böyük hərf','Ən azı 1 rəqəm','Ən azı 2 xüsusi simvol','Şifrəni göstər','Şifrəni gizlət','Giriş','Qeydiyyat','Gözləyin…','Hazır!','Email və ya şifrə yanlışdır','Bu email artıq qeydiyyatdan keçib','Email düzgün deyil','Xəta','Hesabdan çıx','Trek əlavə olundu!','Bulud yoxdur — demo oxunur','Trek əlçatan deyil','Tətbiq üçün mövzu parametrləri','Tətbiq üçün dil parametrləri','Firebase + Telegram','Firebase Console-da Email/Password açın','Serverlə əlaqə yoxdur','Cəhd çoxdur','Bu domen Firebase-də icazəli deyil','Bazaya giriş yoxdur','Oxutma mövqeyi','Rawamune Services','Cafegrame | Trek əlavə etmək','Trek adını daxil edin','İfaçının adı və ya ləqəbi','Trek əlavə et (mp3, flac, wav, m4a, aac, ogg və ya opus faylı)','Əvvəlcə audio fayl seçin','mp3, flac, wav, m4a, aac, ogg və ya opus faylı olmalıdır','Fayl çox böyükdür (maks. 20 MB)','Fayl yüklənir…','Yükləmə serveri quraşdırılmayıb','Trek relizi əlavə et','Relizlər bölməsi tezliklə','Bəyən','Bəyənmirəm','Oxutma parametrləri','Oxutma keyfiyyəti parametrləri','Lossless keyfiyyət','Trekin orijinal keyfiyyəti','Trafik qənaəti','İnternet trafikinə qənaət rejimi','Aşağı keyfiyyət','Trafikə qənaət üçün aşağılanmış səs keyfiyyəti','Səs çıxışı cihazı','Oxutma cihazını seçin','Cihazlar tapılmadı','Çıxış dəyişdirilməsi brauzerdə dəstəklənmir','Filtri bu trek üçün əlçatan deyil — orijinal oxunur','Telegramdan keçid alına bilmədi','Telegrama yüklənir…'];
+T.fr=['Paramètres','Fermer','Paramètres du thème','Thème clair','Thème sombre','Thème système','Paramètres de langue','Rechercher une langue…','Aucun résultat','Ajouter un titre','Stockage','Actualiser','Chargement…','Aucun titre','Erreur catalogue','Réessayer','Lecture','Pause','Titre suivant','Titre précédent','Aléatoire','Répéter','Répétition désactivée','Tout répéter','Répéter un titre','Volume','Couper le son','Rétablir le son','En cours de lecture','Ouvrir le lecteur','Fermer le lecteur','Autorisation','Saisissez votre adresse e-mail','Saisissez le mot de passe','Créez un mot de passe','Au moins 9 caractères','Une lettre majuscule','Au moins 1 chiffre','Au moins 2 caractères spéciaux','Afficher le mot de passe','Masquer le mot de passe','Connexion','Inscription','Patientez…','Terminé !','E-mail ou mot de passe incorrect','Cet e-mail est déjà enregistré','E-mail invalide','Erreur','Se déconnecter','Titre ajouté !','Cloud indisponible — lecture démo','Titre indisponible','Paramètres du thème pour l’application','Paramètres de langue pour l’application','Firebase + Telegram','Activez Email/Password dans Firebase Console','Pas de connexion au serveur','Trop de tentatives','Ce domaine n’est pas autorisé dans Firebase','Accès base refusé','Position de lecture','Rawamune Services','Cafegrame | Ajout d’un titre','Saisissez le titre du morceau','Nom ou pseudo de l’artiste','Ajouter un titre (fichier mp3, flac, wav, m4a, aac, ogg ou opus)','Choisissez d’abord un fichier audio','Fichier mp3, flac, wav, m4a, aac, ogg ou opus requis','Fichier trop lourd (max 20 Mo)','Téléversement du fichier…','Serveur de téléversement non configuré','Ajouter une sortie de titre','Section sorties bientôt disponible','J’aime','Je n’aime pas','Paramètres de lecture','Paramètres de qualité de lecture','Qualité Lossless','Qualité d’origine du titre','Économie de données','Mode pour économiser le trafic internet','Qualité basse','Qualité sonore réduite pour économiser le trafic','Appareil de sortie audio','Choisir l’appareil de lecture','Aucun appareil trouvé','Le changement de sortie n’est pas pris en charge','Filtre indisponible pour ce titre — lecture originale','Lien Telegram indisponible','Téléversement vers Telegram…'];
+T.hr=['Postavke','Zatvori','Postavke teme','Svijetla tema','Tamna tema','Sustavna tema','Postavke jezika','Pretraži jezike…','Nema rezultata','Dodaj pjesmu','Pohrana','Osvježi','Učitavanje…','Nema pjesama','Greška kataloga','Pokušaj ponovno','Reproduciraj','Pauza','Sljedeća pjesma','Prethodna pjesma','Nasumično','Ponavljanje','Ponavljanje isključeno','Ponovi sve','Ponovi jednu','Glasnoća','Utišaj','Vrati zvuk','Sada svira','Otvori player','Zatvori player','Autorizacija','Unesite svoju e-poštu','Unesite lozinku','Smislite lozinku','Najmanje 9 znakova','Jedno veliko slovo','Najmanje 1 znamenka','Najmanje 2 posebna znaka','Prikaži lozinku','Sakrij lozinku','Prijava','Registracija','Pričekajte…','Gotovo!','Pogrešan email ili lozinka','Ovaj email je već registriran','Neispravan email','Greška','Odjavi se s računa','Pjesma dodana!','Oblak nedostupan — svira demo','Pjesma nedostupna','Postavke teme za aplikaciju','Postavke jezika za aplikaciju','Firebase + Telegram','Uključite Email/Password u Firebase Console','Nema veze sa serverom','Previše pokušaja','Ova domena nije dopuštena u Firebase','Nema pristupa bazi','Pozicija reprodukcije','Rawamune Services','Cafegrame | Dodavanje pjesme','Unesite naziv pjesme','Ime ili pseudonim izvođača','Dodaj pjesmu (mp3, flac, wav, m4a, aac, ogg ili opus datoteka)','Prvo odaberite audio datoteku','Potrebna je mp3, flac, wav, m4a, aac, ogg ili opus datoteka','Datoteka je prevelika (maks. 20 MB)','Učitavanje datoteke…','Server za učitavanje nije postavljen','Dodaj izdanje pjesme','Odjeljak izdanja uskoro','Sviđa mi se','Ne sviđa mi se','Postavke reprodukcije','Postavke kvalitete reprodukcije','Lossless kvaliteta','Izvorna kvaliteta pjesme','Ušteda prometa','Način za uštedu internetskog prometa','Niska kvaliteta','Snižena kvaliteta zvuka radi uštede','Uređaj za reprodukciju zvuka','Odabir uređaja reprodukcije','Uređaji nisu pronađeni','Promjena izlaza nije podržana u pregledniku','Filtar nedostupan za ovu pjesmu — svira original','Nije moguće dobiti vezu iz Telegrama','Učitavanje u Telegram…'];
+T.it=['Impostazioni','Chiudi','Impostazioni del tema','Tema chiaro','Tema scuro','Tema di sistema','Impostazioni lingua','Cerca lingua…','Nessun risultato','Aggiungi brano','Archiviazione','Aggiorna','Caricamento…','Nessun brano','Errore catalogo','Riprova','Riproduci','Pausa','Brano successivo','Brano precedente','Casuale','Ripeti','Ripetizione disattivata','Ripeti tutti','Ripeti uno','Volume','Disattiva audio','Riattiva audio','In riproduzione','Apri il lettore','Chiudi il lettore','Autorizzazione','Inserisci la tua email','Inserisci la password','Crea una password','Almeno 9 caratteri','Una lettera maiuscola','Almeno 1 cifra','Almeno 2 caratteri speciali','Mostra password','Nascondi password','Accedi','Registrati','Attendere…','Fatto!','Email o password errati','Questa email è già registrata','Email non valida','Errore','Esci dall’account','Brano aggiunto!','Cloud non disponibile — riproduzione demo','Brano non disponibile','Impostazioni del tema per l’app','Impostazioni lingua per l’app','Firebase + Telegram','Abilita Email/Password in Firebase Console','Nessuna connessione al server','Troppi tentativi','Questo dominio non è consentito in Firebase','Accesso al database negato','Posizione di riproduzione','Rawamune Services','Cafegrame | Aggiunta brano','Inserisci il titolo del brano','Nome o pseudonimo dell’artista','Aggiungi brano (file mp3, flac, wav, m4a, aac, ogg o opus)','Prima scegli un file audio','Serve un file mp3, flac, wav, m4a, aac, ogg o opus','File troppo grande (max 20 MB)','Caricamento file…','Server di caricamento non configurato','Aggiungi release del brano','Sezione release in arrivo','Mi piace','Non mi piace','Impostazioni di riproduzione','Impostazioni di qualità della riproduzione','Qualità Lossless','Qualità originale del brano','Risparmio traffico','Modalità per risparmiare traffico internet','Qualità bassa','Qualità audio ridotta per risparmiare traffico','Dispositivo di uscita audio','Scegli il dispositivo di riproduzione','Nessun dispositivo trovato','Cambio uscita non supportato dal browser','Filtro non disponibile per questo brano — riproduce originale','Impossibile ottenere il link da Telegram','Caricamento su Telegram…'];
+T.ja=['設定','閉じる','テーマ設定','ライトテーマ','ダークテーマ','システムテーマ','言語設定','言語を検索…','見つかりません','曲を追加','ストレージ','更新','読み込み中…','曲がありません','カタログエラー','再試行','再生','一時停止','次の曲','前の曲','シャッフル','リピート','リピートオフ','全曲リピート','1曲リピート','音量','ミュート','ミュート解除','再生中','プレーヤーを開く','プレーヤーを閉じる','認証','メールアドレスを入力','パスワードを入力','パスワードを作成','9文字以上','大文字を1つ','数字を1つ以上','特殊文字を2つ以上','パスワードを表示','パスワードを隠す','ログイン','登録','お待ちください…','完了しました！','メールまたはパスワードが違います','このメールは既に登録されています','メール形式が正しくありません','エラー','アカウントからログアウト','曲を追加しました！','クラウド利用不可 — デモ再生','曲を利用できません','アプリのテーマ設定','アプリの言語設定','Firebase + Telegram','Firebase Console で Email/Password を有効に','サーバーに接続できません','試行が多すぎます','このドメインは Firebase で許可されていません','データベースにアクセスできません','再生位置','Rawamune Services','Cafegrame | 曲の追加','曲名を入力','アーティスト名または別名','曲を追加（mp3 / flac / wav / m4a / aac / ogg / opus ファイル）','先にオーディオファイルを選択','mp3 / flac / wav / m4a / aac / ogg / opus が必要です','ファイルが大きすぎます（最大20MB）','ファイルをアップロード中…','アップロードサーバーが未設定','トラックリリースを追加','リリース欄は近日公開','いいね','よくない','再生設定','再生品質の設定','Lossless 品質','曲のオリジナル品質','通信量節約','インターネット通信量を節約するモード','低品質','通信量節約のための低音質','音声出力デバイス','再生デバイスを選択','デバイスが見つかりません','出力切替はこのブラウザでは非対応','この曲ではフィルター利用不可 — オリジナルを再生','Telegram からリンクを取得できませんでした','Telegram にアップロード中…'];
+T.kk=['Параметрлер','Жабу','Тақырып параметрлері','Ашық тақырып','Күңгірт тақырып','Жүйелік тақырып','Тіл параметрлері','Тілді іздеу…','Ештеңе табылмады','Трек қосу','Қойма','Жаңарту','Жүктелуде…','Тректер жоқ','Каталог қатесі','Қайталау','Ойнату','Кідірту','Келесі трек','Алдыңғы трек','Араластыру','Қайталау','Қайталау өшірулі','Барлығын қайталау','Біреуін қайталау','Дыбыс деңгейі','Дыбысты өшіру','Дыбысты қосу','Қазір ойнатылуда','Плеерді ашу','Плеерді жабу','Авторизация','Электрондық поштаңызды енгізіңіз','Құпиясөзді енгізіңіз','Құпиясөз ойлап табыңыз','Кемінде 9 таңба','Бір бас әріп','Кемінде 1 цифр','Кемінде 2 арнайы таңба','Құпиясөзді көрсету','Құпиясөзді жасыру','Кіру','Тіркелу','Күтіңіз…','Дайын!','Email немесе құпиясөз қате','Бұл email тіркелген','Email қате','Қате','Тіркелгіден шығу','Трек қосылды!','Бұлт қолжетімсіз — демо ойнатылуда','Трек қолжетімсіз','Қолданба үшін тақырып параметрлері','Қолданба үшін тіл параметрлері','Firebase + Telegram','Firebase Console-да Email/Password қосыңыз','Сервермен байланыс жоқ','Әрекет тым көп','Бұл домен Firebase-де рұқсат етілмеген','Базаға қолжетім жоқ','Ойнату орны','Rawamune Services','Cafegrame | Трек қосу','Трек атауын енгізіңіз','Орындаушының аты немесе лақап аты','Трек қосу (mp3, flac, wav, m4a, aac, ogg немесе opus файлы)','Алдымен аудио файлды таңдаңыз','mp3, flac, wav, m4a, aac, ogg немесе opus файлы керек','Файл тым үлкен (макс. 20 МБ)','Файл жүктелуде…','Жүктеу сервері бапталмаған','Трек релизін қосу','Релиз бөлімі жақында','Ұнайды','Ұнамайды','Ойнату параметрлері','Ойнату сапасының параметрлері','Lossless сапа','Тректің бастапқы сапасы','Трафик үнемдеу','Интернет трафигін үнемдеу режимі','Төмен сапа','Трафик үнемдеу үшін төмендетілген дыбыс сапасы','Дыбыс шығару құрылғысы','Ойнату құрылғысын таңдау','Құрылғылар табылмады','Шығысты ауыстыру браузерде қолдау таппайды','Бұл тректе сүзгі қолжетімсіз — оригинал ойнатылуда','Telegram-дан сілтеме алу сәтсіз','Telegram-ға жүктелуде…'];
+T.pl=['Ustawienia','Zamknij','Ustawienia motywu','Jasny motyw','Ciemny motyw','Motyw systemowy','Ustawienia języka','Szukaj języka…','Brak wyników','Dodaj utwór','Magazyn','Odśwież','Ładowanie…','Brak utworów','Błąd katalogu','Ponów','Odtwórz','Pauza','Następny utwór','Poprzedni utwór','Losowo','Powtarzanie','Powtarzanie wyłączone','Powtarzaj wszystkie','Powtarzaj jeden','Głośność','Wycisz','Wyłącz wyciszenie','Teraz odtwarzane','Otwórz odtwarzacz','Zamknij odtwarzacz','Autoryzacja','Wpisz swój adres e-mail','Wpisz hasło','Wymyśl hasło','Minimum 9 znaków','Jedna wielka litera','Minimum 1 cyfra','Minimum 2 znaki specjalne','Pokaż hasło','Ukryj hasło','Logowanie','Rejestracja','Czekaj…','Gotowe!','Błędny email lub hasło','Ten email jest już zarejestrowany','Błędny email','Błąd','Wyloguj z konta','Utwór dodany!','Chmura niedostępna — gra demo','Utwór niedostępny','Ustawienia motywu dla aplikacji','Ustawienia języka dla aplikacji','Firebase + Telegram','Włącz Email/Password w Firebase Console','Brak połączenia z serwerem','Zbyt wiele prób','Ta domena nie jest dozwolona w Firebase','Brak dostępu do bazy','Pozycja odtwarzania','Rawamune Services','Cafegrame | Dodawanie utworu','Wpisz tytuł utworu','Imię lub pseudonim wykonawcy','Dodaj utwór (plik mp3, flac, wav, m4a, aac, ogg lub opus)','Najpierw wybierz plik audio','Wymagany plik mp3, flac, wav, m4a, aac, ogg lub opus','Plik za duży (maks. 20 MB)','Wysyłanie pliku…','Serwer wysyłania nie skonfigurowany','Dodaj wydanie utworu','Sekcja wydań wkrótce','Lubię','Nie lubię','Ustawienia odtwarzania','Ustawienia jakości odtwarzania','Jakość Lossless','Oryginalna jakość utworu','Oszczędzanie transferu','Tryb oszczędzania transferu internetowego','Niska jakość','Obniżona jakość dźwięku dla oszczędności','Urządzenie wyjściowe dźwięku','Wybór urządzenia odtwarzania','Nie znaleziono urządzeń','Przełączanie wyjścia nie jest obsługiwane','Filtr niedostępny dla tego utworu — odtwarzanie oryginału','Nie udało się pobrać linku z Telegram','Wysyłanie do Telegram…'];
+T.ro=['Setări','Închide','Setări temă','Temă luminoasă','Temă întunecată','Temă de sistem','Setări limbă','Caută limba…','Niciun rezultat','Adaugă piesă','Stocare','Reîmprospătează','Se încarcă…','Nu există piese','Eroare catalog','Reîncearcă','Redă','Pauză','Piesa următoare','Piesa anterioară','Amestecă','Repetă','Repetare oprită','Repetă toate','Repetă una','Volum','Dezactivează sunetul','Activează sunetul','Se redă acum','Deschide playerul','Închide playerul','Autorizare','Introdu adresa ta de email','Introdu parola','Creează o parolă','Minimum 9 caractere','O literă mare','Minimum 1 cifră','Minimum 2 caractere speciale','Arată parola','Ascunde parola','Autentificare','Înregistrare','Așteaptă…','Gata!','Email sau parolă incorecte','Acest email este deja înregistrat','Email invalid','Eroare','Ieși din cont','Piesă adăugată!','Cloud indisponibil — redă demo','Piesă indisponibilă','Setări temă pentru aplicație','Setări limbă pentru aplicație','Firebase + Telegram','Activează Email/Password în Firebase Console','Fără conexiune la server','Prea multe încercări','Acest domeniu nu este permis în Firebase','Acces la bază refuzat','Poziția de redare','Rawamune Services','Cafegrame | Adăugare piesă','Introdu titlul piesei','Numele sau pseudonimul artistului','Adaugă piesă (fișier mp3, flac, wav, m4a, aac, ogg sau opus)','Mai întâi alege un fișier audio','Este nevoie de fișier mp3, flac, wav, m4a, aac, ogg sau opus','Fișier prea mare (max. 20 MB)','Se încarcă fișierul…','Serverul de încărcare nu este configurat','Adaugă release-ul piesei','Secțiunea release în curând','Îmi place','Nu-mi place','Setări de redare','Setări de calitate a redării','Calitate Lossless','Calitatea originală a piesei','Economie de trafic','Mod pentru economisirea traficului internet','Calitate scăzută','Calitate redusă a sunetului pentru economie','Dispozitiv de redare a sunetului','Alegerea dispozitivului de redare','Niciun dispozitiv găsit','Comutarea ieșirii nu este suportată de browser','Filtru indisponibil pentru această piesă — redă originalul','Nu s-a putut obține linkul din Telegram','Se încarcă în Telegram…'];
+T.sv=['Inställningar','Stäng','Temainställningar','Ljust tema','Mörkt tema','Systemtema','Språkinställningar','Sök språk…','Inga resultat','Lägg till låt','Lagring','Uppdatera','Laddar…','Inga låtar','Katalogfel','Försök igen','Spela','Paus','Nästa låt','Föregående låt','Blanda','Repetera','Repetering av','Repetera alla','Repetera en','Volym','Ljud av','Ljud på','Spelas nu','Öppna spelaren','Stäng spelaren','Auktorisering','Ange din e-postadress','Ange lösenord','Skapa ett lösenord','Minst 9 tecken','En versal bokstav','Minst 1 siffra','Minst 2 specialtecken','Visa lösenord','Dölj lösenord','Logga in','Registrera','Vänta…','Klart!','Fel e-post eller lösenord','Denna e-post är redan registrerad','Ogiltig e-post','Fel','Logga ut från kontot','Låten tillagd!','Molnet otillgängligt — spelar demo','Låten är otillgänglig','Temainställningar för appen','Språkinställningar för appen','Firebase + Telegram','Aktivera Email/Password i Firebase Console','Ingen anslutning till servern','För många försök','Denna domän är inte tillåten i Firebase','Ingen databasåtkomst','Uppspelningsposition','Rawamune Services','Cafegrame | Lägg till låt','Ange låtens titel','Artistens namn eller alias','Lägg till låt (mp3-, flac-, wav-, m4a-, aac-, ogg- eller opus-fil)','Välj en ljudfil först','Filen måste vara mp3, flac, wav, m4a, aac, ogg eller opus','Filen är för stor (max 20 MB)','Laddar upp fil…','Uppladdningsserver inte konfigurerad','Lägg till låtsläpp','Släpp-sektionen kommer snart','Gillar','Gillar inte','Uppspelningsinställningar','Inställningar för uppspelningskvalitet','Lossless-kvalitet','Låtens originalkvalitet','Datasparande','Läge för att spara internettrafik','Låg kvalitet','Sänkt ljudkvalitet för att spara trafik','Ljudutgångsenhet','Välj uppspelningsenhet','Inga enheter hittades','Byte av utgång stöds inte av webbläsaren','Filter otillgängligt för denna låt — spelar original','Kunde inte få länk från Telegram','Laddar upp till Telegram…'];
+T.uz=['Sozlamalar','Yopish','Mavzu sozlamalari','Yorqin mavzu','Qorong‘u mavzu','Tizim mavzusi','Til sozlamalari','Tilni qidirish…','Hech narsa topilmadi','Trek qo‘shish','Xotira','Yangilash','Yuklanmoqda…','Treklar yo‘q','Katalog xatosi','Qayta urinish','Ijro','Pauza','Keyingi trek','Oldingi trek','Aralashtirish','Takrorlash','Takrorlash o‘chiq','Hammasini takrorlash','Bittasini takrorlash','Ovoz','Ovozni o‘chirish','Ovozni yoqish','Hozir ijro etilmoqda','Pleyerni ochish','Pleyerni yopish','Avtorizatsiya','Elektron pochtangizni kiriting','Parolni kiriting','Parol o‘ylab toping','Kamida 9 belgi','Bitta katta harf','Kamida 1 raqam','Kamida 2 maxsus belgi','Parolni ko‘rsatish','Parolni yashirish','Kirish','Ro‘yxatdan o‘tish','Kuting…','Tayyor!','Email yoki parol xato','Bu email allaqachon ro‘yxatdan o‘tgan','Email noto‘g‘ri','Xato','Hisobdan chiqish','Trek qo‘shildi!','Bulut mavjud emas — demo ijro','Trek mavjud emas','Ilova uchun mavzu sozlamalari','Ilova uchun til sozlamalari','Firebase + Telegram','Firebase Console-da Email/Password yoqing','Server bilan aloqa yo‘q','Urinishlar juda ko‘p','Bu domen Firebase-da ruxsat etilmagan','Bazaga kirish yo‘q','Ijro pozitsiyasi','Rawamune Services','Cafegrame | Trek qo‘shish','Trek nomini kiriting','Ijrochi ismi yoki taxallusi','Trek qo‘shish (mp3, flac, wav, m4a, aac, ogg yoki opus fayli)','Avval audio faylni tanlang','mp3, flac, wav, m4a, aac, ogg yoki opus fayli kerak','Fayl juda katta (maks. 20 MB)','Fayl yuklanmoqda…','Yuklash serveri sozlanmagan','Trek relizini qo‘shish','Relizlar bo‘limi tez orada','Yoqadi','Yoqmaydi','Ijro sozlamalari','Ijro sifati sozlamalari','Lossless sifat','Trekning asl sifati','Trafik tejash','Internet trafigini tejash rejimi','Past sifat','Trafik tejash uchun pasaytirilgan ovoz sifati','Ovoz chiqarish qurilmasi','Ijro qurilmasini tanlash','Qurilmalar topilmadi','Chiqishni almashtirish brauzerda qo‘llab-quvvatlanmaydi','Bu trekda filtr mavjud emas — original ijro etilmoqda','Telegramdan havola olinmadi','Telegramga yuklanmoqda…'];
+T.zh=['设置','关闭','主题设置','浅色主题','深色主题','系统主题','语言设置','搜索语言…','未找到结果','添加歌曲','存储','刷新','加载中…','暂无歌曲','目录错误','重试','播放','暂停','下一首','上一首','随机播放','循环','关闭循环','列表循环','单曲循环','音量','静音','取消静音','正在播放','打开播放器','关闭播放器','身份验证','请输入您的电子邮箱','请输入密码','设置密码','至少 9 个字符','一个大写字母','至少 1 个数字','至少 2 个特殊字符','显示密码','隐藏密码','登录','注册','请稍候…','完成！','邮箱或密码错误','该邮箱已注册','邮箱无效','错误','退出账号','歌曲已添加！','云端不可用 — 播放演示','歌曲不可用','应用程序主题设置','应用程序语言设置','Firebase + Telegram','请在 Firebase Console 启用 Email/Password','无法连接服务器','尝试次数过多','此域名未在 Firebase 获准','数据库访问被拒绝','播放位置','Rawamune Services','Cafegrame | 添加歌曲','请输入歌曲名称','歌手姓名或艺名','添加歌曲（mp3、flac、wav、m4a、aac、ogg 或 opus 文件）','请先选择音频文件','需要 mp3、flac、wav、m4a、aac、ogg 或 opus 文件','文件过大（最大 20 MB）','正在上传文件…','上传服务器未配置','添加歌曲发行','发行板块即将上线','喜欢','不喜欢','播放设置','播放音质设置','Lossless 音质','歌曲原始音质','节省流量','节省互联网流量的模式','低音质','降低音质以节省流量','声音输出设备','选择播放设备','未找到设备','此浏览器不支持切换输出','该歌曲无法使用滤镜 — 播放原始版本','无法从 Telegram 获取链接','正在上传到 Telegram…'];
+T.orv=['Устроения','Затворити','Устроение образа','Свѣтлый образъ','Тёмный образъ','Системный образъ','Устроение языка','Искати языка…','Не обрѣтено','Добавити пѣснь','Хранилище','Обновити','Грузка…','Пѣсней нѣтъ','Ошибка каталога','Повторити','Воспроизвести','Пауза','Слѣдующая пѣснь','Предыдущая пѣснь','Перемѣшати','Повторъ','Повторъ выключенъ','Повторъ всѣхъ','Повторъ единой','Громкость','Умолкнути','Възвратити звукъ','Нынѣ играетъ','Отворити проигрыватель','Затворити проигрыватель','Дозволение','Впиши свою почту','Впиши тайнословъ','Придумай тайнословъ','Не менѣе 9 знаковъ','Единая заглавная буква','Не менѣе 1 цифры','Не менѣе 2 особыхъ знаковъ','Явить тайнословъ','Сокрыти тайнословъ','Въходъ','Запись','Подожди…','Готово!','Почта или тайнословъ невѣрны','Почта ужъ записана','Почта невѣрна','Ошибка','Выйти изъ учёта','Пѣснь добавлена!','Облако недоступно — играетъ демо','Пѣснь недоступна','Устроение образа для приложения','Устроение языковъ для приложения','Firebase + Telegram','Включи Email/Password въ Firebase Console','Нѣтъ связи съ серверомъ','Много попытокъ','Доменъ не дозволенъ въ Firebase','Нѣтъ доступа къ базѣ','Мѣсто воспроизведения','Rawamune Services','Cafegrame | Добавление пѣсни','Впиши имя пѣсни','Имя или прозвище исполнителя','Добавити пѣснь (файлъ mp3, flac, wav, m4a, aac, ogg или opus)','Прежде избери звуковый файлъ','Нуженъ файлъ mp3, flac, wav, m4a, aac, ogg или opus','Файлъ слишкомъ великъ (макс. 20 МБ)','Грузка файла…','Сервер грузки не устроенъ','Добавити релизъ пѣсни','Раздѣлъ релизовъ скоро будетъ','Любо','Нелюбо','Устроение воспроизведения','Устроение качества воспроизведения','Lossless качество','Изначное качество пѣсни','Экономия трафика','Режимъ для экономии трафика','Низкое качество','Пониженное качество звука для экономии','Устройство выхода звука','Выборъ устройства воспроизведения','Устройства не обрѣтены','Перемѣна выхода не поддерживается браузеромъ','Фильтръ недоступенъ для сей пѣсни — играетъ оригиналъ','Не удалось получить ссылку изъ Telegram','Грузка въ Telegram…'];
+const TR={};for(const c in T){const o={};K.forEach((k,i)=>{o[k]=T[c][i]||T.en[i]});TR[c]=o}
+const LANGS=[['ru','Русский'],['en','English'],['uk','Українська'],['az','Azərbaycanca'],['fr','Français'],['hr','Hrvatski'],['it','Italiano'],['ja','日本語'],['kk','Қазақша'],['pl','Polski'],['ro','Română'],['sv','Svenska'],['uz','Oʻzbekcha'],['zh','中文'],['orv','Древнерусский']];
+const $=i=>document.getElementById(i);
+const E={};['dot','gear','toast','live','bar','art','nt','na','retry','shuf','prv','ply','nxt','rep','sk','ct1','ct2','exp','mut','vol','big','bs','bcl','bcn','bart','bpov','bt','ba','vdn','vup','bprv','bply','bnxt','bsk','bt1','bt2','bshuf','brep','bmut','bvol','bset','qsh','qshX','qAcc','qOpts','qLossless','qSave','qLow','dAcc','dOpts','dList','dNote','set','setX','prof','umail','out','add','thB','thO','lgB','lgO','lgs','lgl','lge','stB','stO','stInfo','ref','auth','authX','tIn','tUp','af','ae','ap','aeye','rq','asb','asbl','ast','addM','addX','addF','fT','fA','fRel','fB','fR','fF','fC','fP','fS','fImg','fI','fIC','metaTheme'].forEach(i=>E[i]=$(i));
+E.meta=E.metaTheme;
+const SV='fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"';
+const IC={play:'<svg viewBox="0 0 24 24" fill="currentColor"><path d="M8 5.1v13.8c0 .8.9 1.3 1.6.9l10.5-6.9a1 1 0 0 0 0-1.8L9.6 4.2A1 1 0 0 0 8 5.1Z"/></svg>',pause:'<svg viewBox="0 0 24 24" fill="currentColor"><rect x="6" y="5" width="4" height="14" rx="1"/><rect x="14" y="5" width="4" height="14" rx="1"/></svg>',prev:'<svg viewBox="0 0 24 24" fill="currentColor"><path d="M6 6h2v12H6zm3.5 6L18 18V6z"/></svg>',next:'<svg viewBox="0 0 24 24" fill="currentColor"><path d="M16 6h2v12h-2zM6 18l8.5-6L6 6z"/></svg>',prevS:'<svg viewBox="0 0 24 24" fill="currentColor" stroke="currentColor" stroke-width="2.2" stroke-linejoin="round" stroke-linecap="round"><path d="M17.5 7.5v9l-6.5-4.5z"/><path d="M7 7.5v9"/></svg>',nextS:'<svg viewBox="0 0 24 24" fill="currentColor" stroke="currentColor" stroke-width="2.2" stroke-linejoin="round" stroke-linecap="round"><path d="M6.5 7.5v9l6.5-4.5z"/><path d="M17 7.5v9"/></svg>',shuffle:`<svg viewBox="0 0 24 24" ${SV}><path d="M16 3h5v5M4 20 21 3M21 16v5h-5M15 15l6 6M4 4l5 5"/></svg>`,repeat:`<svg viewBox="0 0 24 24" ${SV}><path d="m17 2 4 4-4 4M3 11v-1a4 4 0 0 1 4-4h14M7 22l-4-4 4-4M21 13v1a4 4 0 0 1-4 4H3"/></svg>`,volume:`<svg viewBox="0 0 24 24"><path d="M11 5 6 9H2v6h4l5 4V5Z" fill="currentColor"/><path d="M15.5 8.5a5 5 0 0 1 0 7M18.5 5.5a9 9 0 0 1 0 13" ${SV}/></svg>`,mute:`<svg viewBox="0 0 24 24"><path d="M11 5 6 9H2v6h4l5 4V5Z" fill="currentColor"/><path d="m16 9 5 6m0-6-5 6" ${SV}/></svg>`,chev:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m5 9 7 7 7-7"/></svg>',bars:`<svg viewBox="0 0 24 24" ${SV}><path d="M4 7h16M4 12h16M4 17h16"/></svg>`,eye:`<svg viewBox="0 0 24 24" ${SV}><path d="M2 12s3.6-6.5 10-6.5S22 12 22 12s-3.6 6.5-10 6.5S2 12 2 12Z"/><circle cx="12" cy="12" r="2.6"/></svg>`,eyeOff:`<svg viewBox="0 0 24 24" ${SV}><path d="M3 3l18 18M10.6 6.1A9.9 9.9 0 0 1 12 6c6.4 0 10 6 10 6a17 17 0 0 1-3.3 3.9M6.4 8.2A16.6 16.6 0 0 0 2 12s3.6 6.5 10 6.5c1.3 0 2.5-.2 3.5-.6"/><path d="M9.9 10.1a2.6 2.6 0 0 0 3.6 3.7"/></svg>`,up:'<svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><rect x="2.5" y="10" width="3.5" height="11" rx="1.2"/><path d="M8 10.6 12.2 3.6A2 2 0 0 1 15.9 4.6V9h3.6a2 2 0 0 1 2 2.4l-1.3 6A2 2 0 0 1 18.2 21H8Z"/></svg>',down:'<svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><rect x="2.5" y="3" width="3.5" height="11" rx="1.2"/><path d="M8 13.4 12.2 20.4A2 2 0 0 0 15.9 19.4V15h3.6a2 2 0 0 0 2-2.4l-1.3-6A2 2 0 0 0 18.2 3H8Z"/></svg>'};
+const ico=(e,n)=>{e.innerHTML=IC[n]||''};
+let lang='ru',theme='dark',FB=null,user=null,login=true,shown=false,pendingAdd=false,picked=null,busyUp=false,coverBlob=null,coverFmt='';
+let cat=[],mode='load',cid=null,sh=false,rp='off',restored=false;
+let net='check',busy=false,timer=null,tt=null;
+let votes={};try{votes=JSON.parse(S.get('cg-votes')||'{}')}catch(e){}
+let qMode=S.get('cg-quality')||'lossless';if(!['lossless','save','low'].includes(qMode))qMode='lossless';
+let savedVol=1,savedMuted=false;
+try{const p=JSON.parse(S.get('cg-player')||'{}');if(Number.isFinite(+p.v))savedVol=Math.min(1,Math.max(0,+p.v));savedMuted=!!p.m;sh=!!p.s;if(['off','all','one'].includes(p.r))rp=p.r}catch(e){}
+let A=null,B=null,AC=null,gNode=null,gFilter=null,gOn=false,curSink='';
+function mkEl(){const a=new Audio();a.preload='metadata';a.volume=savedVol;a.muted=savedMuted;attach(a);return a}
+function attach(a){a.addEventListener('loadedmetadata',()=>seekUI());a.addEventListener('timeupdate',seekUI);a.addEventListener('play',playUI);a.addEventListener('pause',playUI);a.addEventListener('ended',()=>next(true));a.addEventListener('error',()=>onErr(a))}
+function curEl(){const x=cur();return(x&&x.tg)?B:A}
+const t=k=>(TR[lang]||TR.ru)[k]||TR.en[k]||k;
+const save=()=>S.set('cg-player',JSON.stringify({v:savedVol,m:savedMuted,s:sh,r:rp}));
+const idx=()=>cat.findIndex(x=>x.id===cid);
+const cur=()=>cat.find(x=>x.id===cid)||null;
+const fmt=s=>!Number.isFinite(s)||s<0?'--:--':Math.floor(s/60)+':'+String(Math.floor(s%60)).padStart(2,'0');
+const hue=s=>{let h=0;for(let i=0;i<s.length;i++)h=(h*31+s.charCodeAt(i))%360;return h};
+const ini=x=>(String(x.title||'').trim().slice(0,2)||'\u266A').toUpperCase();
+function toast(m){E.toast.textContent=m;E.toast.classList.add('on');clearTimeout(tt);tt=setTimeout(()=>E.toast.classList.remove('on'),2800)}
+function rng(e){const a=+e.min||0,b=+e.max||100,v=+e.value||0;e.style.setProperty('--p',(b>a?(v-a)/(b-a)*100:0)+'%')}
+function qFreq(){return qMode==='lossless'?22050:qMode==='save'?9000:3500}
+function ensureGraph(){if(gOn)return true;try{AC=new(window.AudioContext||window.webkitAudioContext)();gNode=AC.createMediaElementSource(A);gFilter=AC.createBiquadFilter();gFilter.type='lowpass';gFilter.Q.value=.7;gFilter.frequency.value=qFreq();gNode.connect(gFilter);gFilter.connect(AC.destination);gOn=true;return true}catch(e){gOn=false;return false}}
+function applyQuality(){const x=cur();if(!x)return;
+if(x.tg){return}
+if(qMode==='lossless'){if(gOn&&gFilter)try{gFilter.frequency.value=22050}catch(e){}return}
+if(!gOn){return}
+if(gOn){if(AC.state==='suspended')AC.resume().catch(()=>{});try{gFilter.frequency.value=qFreq()}catch(e){}}}
+function qUI(){[['qLossless','lossless'],['qSave','save'],['qLow','low']].forEach(([id,m])=>{const b=E[id];if(!b)return;b.classList.toggle('sel',qMode===m);b.setAttribute('aria-checked',String(qMode===m))});if(E.bset)E.bset.classList.toggle('on',qMode!=='lossless')}
+function setQuality(m){qMode=m;S.set('cg-quality',m);qUI();applyQuality()}
+E.qLossless.onclick=()=>setQuality('lossless');E.qSave.onclick=()=>setQuality('save');E.qLow.onclick=()=>setQuality('low');
+async function listDevices(){E.dList.textContent='';
+if(!navigator.mediaDevices||!navigator.mediaDevices.enumerateDevices){E.dNote.textContent=t('dUnsupported');return}
+let outs=[];try{outs=(await navigator.mediaDevices.enumerateDevices()).filter(d=>d.kind==='audiooutput')}catch(e){}
+if(outs.length&&outs.some(d=>!d.label)){try{const st=await navigator.mediaDevices.getUserMedia({audio:true});st.getTracks().forEach(tr=>tr.stop());outs=(await navigator.mediaDevices.enumerateDevices()).filter(d=>d.kind==='audiooutput')}catch(e){}}
+if(!outs.length){E.dNote.textContent=t('dNone');return}
+E.dNote.textContent=(typeof curEl().setSinkId==='function')?'':t('dUnsupported');
+outs.forEach((d,i)=>{const b=document.createElement('button');b.type='button';b.className='qopt';const lab=document.createElement('span');lab.className='qt';lab.textContent=d.label||('Output '+(i+1));b.appendChild(lab);const sel=(curSink&&d.deviceId===curSink)||(!curSink&&(d.deviceId==='default'||d.deviceId===''));if(sel)b.classList.add('sel');b.onclick=()=>chooseDevice(d.deviceId);E.dList.appendChild(b)})}
+async function chooseDevice(id){const el=curEl();if(typeof el.setSinkId!=='function'){toast(t('dUnsupported'));return}try{await el.setSinkId(id);curSink=id;listDevices()}catch(e){toast(t('dUnsupported'))}}
+if(navigator.mediaDevices&&navigator.mediaDevices.addEventListener)navigator.mediaDevices.addEventListener('devicechange',()=>{if(E.qsh.open)listDevices()});
+const mq=matchMedia('(prefers-color-scheme: dark)');
+function setTheme(v){if(!['light','dark','system'].includes(v))v='dark';theme=v;S.set('cg-theme',v);const l=v==='light'||(v==='system'&&!mq.matches);document.documentElement.classList.toggle('lt',l);E.meta.content=l?'#e6e9ef':'#0b0b12';document.querySelectorAll('[data-th]').forEach(b=>{const on=b.dataset.th===v;b.classList.toggle('act',on);b.setAttribute('aria-pressed',String(on))})}
+document.querySelectorAll('[data-th]').forEach(b=>b.onclick=()=>setTheme(b.dataset.th));
+mq.addEventListener('change',()=>{if(theme==='system')setTheme('system')});
+const lbtns=[];
+LANGS.forEach(([c,n])=>{const b=document.createElement('button');b.type='button';b.className='op';b.dataset.lg=c;b.dataset.s=(n+' '+c).toLowerCase();b.textContent=n;b.setAttribute('aria-pressed','false');b.onclick=()=>setLang(c);E.lgl.appendChild(b);lbtns.push(b)});
+E.lgs.oninput=()=>{const q=E.lgs.value.trim().toLowerCase();let n=0;lbtns.forEach(b=>{const s=!q||b.dataset.s.includes(q);b.hidden=!s;if(s)n++});E.lge.hidden=n>0};
+function detect(){for(const l of(navigator.languages||[navigator.language||''])){const b=l.toLowerCase().split('-')[0];if(TR[b])return b}return'ru'}
+function setLang(c){if(!TR[c])c='ru';lang=c;S.set('cg-lang',c);document.documentElement.lang=c;
+document.querySelectorAll('[data-t]').forEach(e=>e.textContent=t(e.dataset.t));
+document.querySelectorAll('[data-tp]').forEach(e=>{e.placeholder=t(e.dataset.tp);e.setAttribute('aria-label',e.placeholder)});
+document.querySelectorAll('[data-tt]').forEach(e=>{e.title=t(e.dataset.tt);e.setAttribute('aria-label',e.title)});
+E.gear.title=t('settings');E.gear.setAttribute('aria-label',t('settings'));
+[E.setX,E.authX,E.addX,E.qshX].forEach(b=>{b.title=t('close');b.setAttribute('aria-label',t('close'))});
+E.bar.setAttribute('aria-label',t('nowPlaying'));
+lbtns.forEach(b=>{const on=b.dataset.lg===c;b.classList.toggle('act',on);b.setAttribute('aria-pressed',String(on))});
+authUI();expUI();netUI();playUI();repUI();volUI();shUI();liveUI();voteUI();
+if(mode==='load')E.nt.textContent=t('loading')}
+const NK={check:'loading',green:'nowPlaying',yellow:'wait',red:'offline'};
+function netUI(){E.dot.className='dot'+(net==='check'?'':' '+net);const l=t(NK[net]);E.dot.title=l;E.dot.setAttribute('aria-label',l)}
+async function ping(){if(busy)return;if(!navigator.onLine){net='red';netUI();return}busy=true;const s=performance.now(),c=new AbortController(),to=setTimeout(()=>c.abort(),4000);try{const r=await fetch('https://www.cloudflare.com/cdn-cgi/trace',{cache:'no-store',credentials:'omit',referrerPolicy:'no-referrer',signal:c.signal});net=r.ok?(performance.now()-s<700?'green':'yellow'):'red'}catch(e){net='red'}finally{clearTimeout(to);busy=false;netUI()}}
+function poll(){clearInterval(timer);timer=setInterval(ping,5000)}
+addEventListener('online',()=>{ping();if(!FB)load()});
+addEventListener('offline',()=>{net='red';netUI()});
+document.addEventListener('visibilitychange',()=>{if(document.hidden)clearInterval(timer);else{ping();poll()}});
+E.dot.onclick=()=>toast(E.dot.title);
+const blocked=()=>E.set.open||E.auth.open||E.addM.open||E.qsh.open;
+const lock=()=>document.body.classList.toggle('lock',blocked()||E.big.open);
+E.gear.onclick=()=>{E.set.showModal();lock();E.lgs.value='';lbtns.forEach(b=>b.hidden=false);E.lge.hidden=true};
+E.setX.onclick=()=>E.set.close();E.authX.onclick=()=>E.auth.close();E.addX.onclick=()=>E.addM.close();E.qshX.onclick=()=>E.qsh.close();
+[E.set,E.auth,E.addM,E.qsh].forEach(d=>{d.addEventListener('close',lock);d.addEventListener('click',e=>{if(e.target===d)d.close()})});
+E.auth.addEventListener('close',()=>{ast('');eye(false)});
+E.bset.onclick=()=>{E.qsh.showModal();lock();listDevices()};
+function acc(b,o){b.onclick=()=>{const v=o.classList.toggle('open');b.setAttribute('aria-expanded',String(v))}}
+acc(E.thB,E.thO);acc(E.lgB,E.lgO);acc(E.stB,E.stO);acc(E.qAcc,E.qOpts);acc(E.dAcc,E.dOpts);
+function checks(v){const sp=(v.match(/[^A-Za-z\u0410-\u044F\u0401\u04510-9\s]/g)||[]).length;return{len:v.length>=9,up:/[A-Z\u0410-\u042F\u0401]/.test(v),dig:/\d/.test(v),sp:sp>=2}}
+function ok(v){const c=checks(v);return c.len&&c.up&&c.dig&&c.sp}
+function reqs(){const c=checks(E.ap.value);E.rq.querySelectorAll('li').forEach(li=>li.classList.toggle('ok',!!c[li.dataset.r]));E.asb.disabled=!login&&!ok(E.ap.value)}
+function eye(v){shown=v;E.ap.type=v?'text':'password';ico(E.aeye,v?'eyeOff':'eye');const l=t(v?'hidePass':'showPass');E.aeye.title=l;E.aeye.setAttribute('aria-label',l);E.aeye.setAttribute('aria-pressed',String(v))}
+function ast(m,k){E.ast.textContent=m||'';E.ast.className='st'+(k?' '+k:'')}
+function fst(m,k){E.fS.textContent=m||'';E.fS.className='st'+(k?' '+k:'')}
+function updHint(){if(!picked){fst('');return}const need=picked.size>5.5*1024*1024;const msg=lang==='ru'?('Файл выбран. Нажмите кнопку, чтобы загрузить'+(need?' — файл >5.5 МБ, сожмём автоматически':'')+'.'):'File selected. Press the button to upload'+(need?' — file >5.5 MB, will be compressed automatically':'')+'.';fst(msg,'w')}
+function authUI(){E.tIn.setAttribute('aria-selected',String(login));E.tUp.setAttribute('aria-selected',String(!login));E.asbl.textContent=t(login?'login':'register');E.ap.placeholder=t(login?'passIn':'passNew');E.ap.setAttribute('aria-label',E.ap.placeholder);E.ap.autocomplete=login?'current-password':'new-password';E.rq.hidden=login;reqs();eye(shown)}
+function mode2(v){login=v;ast('');authUI()}
+E.tIn.onclick=()=>mode2(true);E.tUp.onclick=()=>mode2(false);E.aeye.onclick=()=>eye(!shown);E.ap.oninput=reqs;
+function ek(e){const c=String(e&&e.code||e&&e.message||'');
+if(/invalid-credential|user-not-found|wrong-password|invalid-login/.test(c))return'errCred';
+if(/email-already-in-use/.test(c))return'errUsed';
+if(/invalid-email|missing-email/.test(c))return'errMail';
+if(/operation-not-allowed|configuration-not-found|admin-restricted/.test(c))return'errProvider';
+if(/network-request-failed|unavailable|deadline-exceeded|failed-precondition/.test(c))return'errNetwork';
+if(/too-many-requests/.test(c))return'errMany';
+if(/unauthorized-domain/.test(c))return'errDomain';
+if(/permission-denied|insufficient/.test(c))return'errRules';
+return'err'}
+const mail=v=>/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v);
+E.af.onsubmit=async e=>{e.preventDefault();
+if(!FB){ast(t('offline'),'e');return}
+const em=E.ae.value.trim(),pw=E.ap.value;
+if(!mail(em)){ast(t('errMail'),'e');E.ae.focus();return}
+if(login){if(!pw){ast(t('errCred'),'e');E.ap.focus();return}}else{if(!ok(pw)){ast(t('err'),'e');reqs();E.ap.focus();return}}
+E.asb.disabled=true;ast(t('wait'));
+try{if(login)await FB.au.signInWithEmailAndPassword(FB.a,em,pw);else await FB.au.createUserWithEmailAndPassword(FB.a,em,pw);ast(t('done'),'g');setTimeout(()=>{E.auth.close();E.af.reset();ast('');reqs();if(pendingAdd){pendingAdd=false;setTimeout(openAdd,250)}},900)}catch(x){ast(t(ek(x)),'e')}finally{E.asb.disabled=!login&&!ok(E.ap.value)}};
+E.out.onclick=async()=>{if(FB)try{await FB.au.signOut(FB.a)}catch(x){}E.set.close()};
+function openAdd(){if(E.addM.open)return;resetAdd();E.addM.showModal();lock()}
+function resetAdd(){E.addF.reset();picked=null;coverBlob=null;coverFmt='';E.fRel.value='';E.fC.hidden=true;E.fIC.hidden=true;E.fP.hidden=true;E.fP.firstElementChild.style.width='0';fst('');E.fB.disabled=false;E.fF.value='';E.fI.value=''}
+E.add.onclick=()=>{if(!FB){toast(t('offline'));return}if(!user){pendingAdd=true;mode2(true);E.auth.showModal();lock()}else openAdd()};
+E.fB.onclick=()=>{if(busyUp)return;if(!picked){fst('');E.fF.click();return}submitAdd()};
+E.fR.onclick=()=>{E.fRel.focus();fst(t('fRelHint'),'w')};
+function b64(file){return new Promise((res,rej)=>{const r=new FileReader();r.onload=()=>res(String(r.result).split(',')[1]||'');r.onerror=rej;r.readAsDataURL(file)})}
+let _lameP=null;
+function loadLame(){if(window.lamejs)return Promise.resolve(window.lamejs);if(_lameP)return _lameP;_lameP=new Promise(function(res,rej){var s=document.createElement('script');s.src='https://cdn.jsdelivr.net/npm/lamejs@1.2.1/lame.min.js';s.onload=function(){res(window.lamejs)};s.onerror=function(){rej(new Error('lame'))};document.head.appendChild(s)});return _lameP}
+async function compressToMp3(file,targetBytes){
+var L=await loadLame();
+var ab=await file.arrayBuffer();
+var oac=new OfflineAudioContext(2,1024,44100);
+var buf=await oac.decodeAudioData(ab.slice(0));
+var sr=buf.sampleRate,ch=buf.numberOfChannels,dur=buf.duration||1;
+var kbps=Math.floor((targetBytes*8/1000)/dur);
+if(kbps>192)kbps=192;if(kbps<32)kbps=32;
+var enc=new L.Mp3Encoder(ch>1?2:1,sr,kbps);
+var a=buf.getChannelData(0),b=ch>1?buf.getChannelData(1):a;
+var len=a.length,block=1152,out=[],iL=new Int16Array(block),iR=new Int16Array(block);
+for(var i=0;i<len;i+=block){
+var n=Math.min(block,len-i);
+for(var j=0;j<n;j++){var s=i+j;var vl=a[s]<0?a[s]*32768:a[s]*32767;var vr=b[s]<0?b[s]*32768:b[s]*32767;iL[j]=vl<-32768?-32768:vl>32767?32767:vl;iR[j]=vr<-32768?-32768:vr>32767?32767:vr}
+var d=ch>1?enc.encodeBuffer(iL.subarray(0,n),iR.subarray(0,n)):enc.encodeBuffer(iL.subarray(0,n));
+if(d.length)out.push(new Uint8Array(d));
+}
+var e=enc.flush();if(e.length)out.push(new Uint8Array(e));
+var tot=0;for(var k=0;k<out.length;k++)tot+=out[k].length;
+return{blob:new Blob(out,{type:'audio/mpeg'}),kbps:kbps,bytes:tot,dur:dur};
+}
+function compressCover(file,maxPx){return new Promise((res,rej)=>{const img=new Image();const url=URL.createObjectURL(file);img.onload=()=>{URL.revokeObjectURL(url);let w=img.width,h=img.height;const s=Math.min(1,maxPx/Math.max(w,h));w=Math.round(w*s);h=Math.round(h*s);const c=document.createElement('canvas');c.width=w;c.height=h;c.getContext('2d').drawImage(img,0,0,w,h);c.toBlob(b=>b?res(b):rej(new Error('canvas_blob')),'image/jpeg',0.82);};img.onerror=()=>{URL.revokeObjectURL(url);rej(new Error('img_decode'))};img.src=url;});}
+E.fI.onchange=async()=>{const f=E.fI.files&&E.fI.files[0];if(!f){coverBlob=null;coverFmt='';E.fIC.hidden=true;return}
+const ext=(f.name.split('.').pop()||'').toLowerCase();
+if(!['jpg','jpeg','png','webp'].includes(ext)){fst(lang==='ru'?'Нужен файл jpg, png или webp':'Need a jpg, png or webp file','e');E.fI.value='';return}
+if(f.size>10*1024*1024){fst(lang==='ru'?'Фото слишком большое (макс. 10 МБ)':'Photo too large (max 10 MB)','e');E.fI.value='';return}
+fst(lang==='ru'?'Обработка обложки…':'Processing cover…');
+try{const b=await compressCover(f,720);coverBlob=b;coverFmt='jpg';E.fIC.textContent=(f.name.split('.').pop()||'cover')+' \u00B7 '+Math.round(b.size/1024)+' KB'+(lang==='ru'?' (было '+Math.round(f.size/1024)+' KB)':' (was '+Math.round(f.size/1024)+' KB)');E.fIC.hidden=false;}catch(e){fst(lang==='ru'?'Не удалось обработать фото':'Could not process photo','e');coverBlob=null;coverFmt='';E.fI.value='';return}
+updHint();};
+E.fImg.onclick=()=>{if(busyUp)return;E.fI.click()};
+E.fF.onchange=()=>{const f=E.fF.files&&E.fF.files[0];if(!f){picked=null;E.fC.hidden=true;fst('');return}
+const ext=(f.name.split('.').pop()||'').toLowerCase();
+if(!['mp3','flac','wav','m4a','aac','ogg','opus'].includes(ext)){fst(t('fBadType'),'e');E.fF.value='';return}
+if(f.size>20*1024*1024){fst(t('fTooBig'),'e');E.fF.value='';return}
+picked=f;E.fC.textContent=f.name+' \u00B7 '+(f.size/1048576).toFixed(1)+' MB';E.fC.hidden=false;updHint()};
+async function submitAdd(){
+const title=E.fT.value.trim(),artist=E.fA.value.trim(),relRaw=(E.fRel.value||'').trim(),relNorm=relRaw.toLowerCase();
+if(!title){fst(t('fTitlePh'),'e');E.fT.focus();return}
+if(!artist){fst(t('fArtistPh'),'e');E.fA.focus();return}
+if(!picked){fst(t('fNeedFile'),'e');return}
+if(!FB||!user){fst(t('offline'),'e');return}
+busyUp=true;E.fB.disabled=true;E.fP.hidden=false;E.fP.firstElementChild.style.width='0';
+if(relRaw){
+try{const q=FB.fs.query(FB.fs.collection(FB.d,'tracks'),FB.fs.where('userId','==',user.uid),FB.fs.where('release','==',relNorm),FB.fs.limit(1));const s=await FB.fs.getDocs(q);if(!s.empty){fst(t('relDup'),'e');busyUp=false;E.fB.disabled=false;E.fP.hidden=true;return}}catch(e){}
+}
+let sendBlob=picked,sendName=picked.name;
+const SAFE=5.5*1024*1024,HARD=5.8*1024*1024;
+if(picked.size>SAFE){
+fst(t('fCompressing'));E.fP.firstElementChild.style.width='8%';
+try{
+const c=await compressToMp3(picked,SAFE);
+if(!c||!c.blob||!c.bytes)throw new Error('compress_empty');
+if(c.bytes>HARD){fst(t('fTooLong'),'e');busyUp=false;E.fB.disabled=false;E.fP.hidden=true;E.fF.value='';return}
+sendBlob=new File([c.blob],picked.name.replace(/\.[^.]+$/,'')+'.mp3',{type:'audio/mpeg'});
+sendName=sendBlob.name;E.fP.firstElementChild.style.width='55%';
+}catch(e){fst(t('fCompressFail'),'e');busyUp=false;E.fB.disabled=false;E.fP.hidden=true;E.fF.value='';return}
+}else{fst(t('fUploading'));E.fP.firstElementChild.style.width='30%'}
+let coverUrl='';
+try{
+E.fP.firstElementChild.style.width='70%';
+const r=await fetch('/netlify/functions/upload',{method:'POST',headers:{'X-Filename':sendName,'Content-Type':sendBlob.type||'audio/mpeg'},body:sendBlob});
+const j=await r.json();
+if(!r.ok||!j.fileId){fst(j.error==='no_env'?t('fNeedStorage'):t('tgFail'),'e');E.fP.firstElementChild.style.width='0';return}
+if(coverBlob){
+E.fP.firstElementChild.style.width='82%';
+try{
+const cm='image/'+(coverFmt==='jpg'?'jpeg':coverFmt);
+const cr=await fetch('/netlify/functions/upload',{method:'POST',headers:{'X-Filename':'cover.'+coverFmt,'Content-Type':cm},body:coverBlob});
+const cj=await cr.json();
+if(cr.ok&&cj.fileId)coverUrl=location.origin+'/netlify/functions/stream?fileId='+encodeURIComponent(cj.fileId)+'&mime='+encodeURIComponent(cm);
+}catch(e){}
+}
+E.fP.firstElementChild.style.width='92%';
+await FB.fs.addDoc(FB.fs.collection(FB.d,'tracks'),{title,artist,tg:j.fileId,src:'',cover:coverUrl,release:relNorm,releaseTitle:relRaw,userId:user.uid,createdAt:FB.fs.serverTimestamp(),format:(sendName.split('.').pop()||'').toLowerCase(),size:sendBlob.size,originalSize:picked.size,compressed:picked.size>SAFE});
+E.fP.firstElementChild.style.width='100%';
+toast(t('added'));E.addM.close();load();
+}catch(x){fst(t('tgFail'),'e')}
+finally{busyUp=false;E.fB.disabled=false;E.fF.value='';E.fI.value=''}}
+function norm(l){const o=[],s=new Set();(Array.isArray(l)?l:[]).forEach((x,i)=>{if(!x)return;
+const tg=String(x.tg||'').trim();const u=String(x.src||'').trim();
+if(!tg&&!/^https?:\/\//i.test(u))return;
+const id=String(x.id||'t'+i);if(s.has(id))return;s.add(id);
+o.push({id,title:String(x.title||'\u2014').slice(0,200),artist:String(x.artist||'').slice(0,200),src:u,tg,cover:String(x.cover||''),release:String(x.release||''),releaseTitle:String(x.releaseTitle||'')})});return o}
+function cache(){try{const o=JSON.parse(S.get('cg-cat')||'null');return o&&o.tracks?norm(o.tracks):null}catch(e){return null}}
+function apply(l){cat=l;mode=cat.length?'ready':'empty';setOn(mode==='ready');
+const i=idx();
+if(i>=0)npUI(cat[i]);
+else{const w=restored?null:S.get('cg-last'),k=w?cat.findIndex(x=>x.id===w):-1;
+if(cat.length)pick(k>=0?k:0,false);else{cid=null;pauseAll();npUI(null);seekUI()}}
+restored=true;
+if(mode==='empty'){E.nt.textContent=t('noTracks');E.bt.textContent=t('noTracks')}}
+async function load(){E.retry.hidden=true;E.nt.textContent=t('loading');
+if(!FB){const c=cache();apply(c&&c.length?c:norm(DEMO));E.stInfo.textContent=t('offline');return}
+E.stInfo.textContent='Firebase + Telegram \u00B7 '+CFG.projectId;
+try{const q=FB.fs.query(FB.fs.collection(FB.d,'tracks'),FB.fs.orderBy('createdAt','desc'),FB.fs.limit(100));
+const s=await FB.fs.getDocs(q),a=[];s.forEach(d=>{const v=d.data()||{};a.push({id:d.id,title:v.title,artist:v.artist,src:v.src,tg:v.tg,cover:v.cover,release:v.release,releaseTitle:v.releaseTitle})});
+const l=norm(a);if(l.length){S.set('cg-cat',JSON.stringify({tracks:l}));apply(l)}else apply(norm(DEMO))}
+catch(x){const c=cache();apply(c&&c.length?c:norm(DEMO));E.retry.hidden=false;toast(t(ek(x)))}}
+E.ref.onclick=load;E.retry.onclick=load;
+function artURI(x){const h=hue(x.id+x.title),h2=(h+55)%360,s=ini(x).replace(/[<>&"']/g,'');
+return'data:image/svg+xml;charset=utf-8,'+encodeURIComponent(`<svg xmlns="http://www.w3.org/2000/svg" width="512" height="512"><defs><linearGradient id="g" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="hsl(${h},78%,56%)"/><stop offset="1" stop-color="hsl(${h2},74%,36%)"/></linearGradient></defs><rect width="512" height="512" fill="url(#g)"/><text x="256" y="316" font-family="Segoe UI,Arial" font-size="180" font-weight="800" fill="#fff" text-anchor="middle">${s}</text></svg>`)}
+function cov(e,x){e.textContent='';e.style.background='';if(!x)return;
+if(x.cover&&/^https?:\/\//i.test(x.cover)){const im=new Image();im.alt='';im.onerror=()=>{const h=hue(x.id+x.title);e.style.background=`linear-gradient(135deg,hsl(${h} 70% 55%),hsl(${(h+45)%360} 70% 42%))`;e.textContent=ini(x)};im.src=x.cover;e.appendChild(im);return}
+const h=hue(x.id+x.title);
+e.style.background=`linear-gradient(135deg,hsl(${h} 70% 55%),hsl(${(h+45)%360} 70% 42%))`;e.textContent=ini(x)}
+function bigArt(x){E.bart.textContent='';E.bart.style.background='';
+if(!x){E.bs.style.setProperty('--h',265);return}
+E.bs.style.setProperty('--h',hue(x.id+x.title));
+const im=new Image();im.alt='';im.onerror=()=>{E.bart.textContent=ini(x);E.bart.style.background=`linear-gradient(135deg,hsl(${hue(x.id+x.title)} 70% 55%),hsl(${(hue(x.id+x.title)+45)%360} 70% 42%))`};
+im.src=x.cover&&/^https?:\/\//i.test(x.cover)?x.cover:artURI(x);E.bart.appendChild(im)}
+function voteUI(){const x=cur(),v=x?votes[x.id]:0;E.vup.classList.toggle('on',v===1);E.vup.setAttribute('aria-pressed',String(v===1));E.vdn.classList.toggle('on',v===-1);E.vdn.setAttribute('aria-pressed',String(v===-1))}
+function setVote(d){const x=cur();if(!x)return;votes[x.id]=(votes[x.id]===d)?0:d;S.set('cg-votes',JSON.stringify(votes));voteUI()}
+E.vup.onclick=()=>setVote(1);E.vdn.onclick=()=>setVote(-1);
+function setOn(v){[E.ply,E.prv,E.nxt,E.shuf,E.rep,E.sk,E.bprv,E.bply,E.bnxt,E.bshuf,E.brep,E.bsk,E.bpov,E.vup,E.vdn].forEach(e=>e.disabled=!v)}
+function npUI(x){if(x){E.nt.textContent=x.title;E.na.textContent=x.artist||' ';cov(E.art,x)}else{E.nt.textContent='\u2014';E.na.textContent='';cov(E.art,null)}
+E.bt.textContent=x?x.title:'\u2014';E.ba.textContent=x?(x.artist||''):'';E.bcn.textContent=x?(idx()+1)+' / '+cat.length:'\u2014';bigArt(x);voteUI()}
+function liveUI(){const x=cur();E.live.textContent=x?t('nowPlaying')+': '+x.title+(x.artist?' \u2014 '+x.artist:''):''}
+function playUI(){const el=curEl();const p=!!cid&&el&&!el.paused&&!el.ended;ico(E.ply,p?'pause':'play');ico(E.bpov,p?'pause':'play');ico(E.bply,p?'pause':'play');
+const l=t(p?'pause':'play');[E.ply,E.bpov,E.bply].forEach(b=>{b.title=l;b.setAttribute('aria-label',l)});
+if(p&&gOn&&AC&&AC.state==='suspended')AC.resume().catch(()=>{});
+document.body.classList.toggle('playing',p)}
+function shUI(){[E.shuf,E.bshuf].forEach(b=>{b.classList.toggle('on',sh);b.setAttribute('aria-pressed',String(sh))})}
+function repUI(){ico(E.rep,'repeat');ico(E.brep,'repeat');
+[E.rep,E.brep].forEach(b=>{b.classList.toggle('on',rp!=='off');b.classList.toggle('one',rp==='one');b.setAttribute('aria-pressed',String(rp!=='off'));
+const l=t(rp==='one'?'repOne':rp==='all'?'repAll':'repOff');b.title=l;b.setAttribute('aria-label',l)})}
+function volUI(){const el=curEl();if(!el)return;const o=el.muted||el.volume===0;ico(E.mut,o?'mute':'volume');ico(E.bmut,o?'mute':'volume');
+const l=t(el.muted?'unmute':'mute');[E.mut,E.bmut].forEach(b=>{b.title=l;b.setAttribute('aria-label',l);b.setAttribute('aria-pressed',String(el.muted));b.classList.toggle('on',el.muted)});
+E.vol.value=el.muted?0:el.volume;rng(E.vol);E.bvol.value=el.muted?0:el.volume;rng(E.bvol)}
+function seekUI(){const el=curEl();if(!el)return;const d=el.duration,o=Number.isFinite(d)&&d>0;E.ct2.textContent=fmt(d);E.bt2.textContent=fmt(d);
+const dis=!cid||!o||mode!=='ready';
+[E.sk,E.bsk].forEach(e=>{e.max=o?d:100;e.disabled=dis;if(!e.matches(':active'))e.value=o?el.currentTime:0;rng(e)});
+E.ct1.textContent=fmt(el.currentTime);E.bt1.textContent=fmt(el.currentTime)}
+function pauseAll(){[A,B].forEach(a=>{if(a){try{a.pause()}catch(e){}}})}
+async function pick(i,auto){const x=cat[i];if(!x)return;cid=x.id;S.set("cg-last",cid);pauseAll();
+npUI(x);liveUI();E.ct2.textContent="--:--";E.bt2.textContent="--:--";E.ct1.textContent="0:00";E.bt1.textContent="0:00";
+E.sk.value=0;E.bsk.value=0;rng(E.sk);rng(E.bsk);
+if(x.tg){B.crossOrigin="";B.src="/netlify/functions/stream?fileId="+encodeURIComponent(x.tg);B.load();if(auto)B.play().catch(()=>toast(t("trackBad")));playUI();seekUI();return}
+A.crossOrigin="";
+A.src=x.src;A.load();if(auto)A.play().catch(()=>toast(t("trackBad")));
+playUI();seekUI();applyQuality()}
+function onErr(a){if(!cid)return;toast(t('trackBad'));playUI()}
+function toggle(){if(mode!=='ready'||!cat.length)return;if(!cid){pick(0,true);return}const el=curEl();if(!el)return;if(el.paused)el.play().catch(()=>toast(t('trackBad')));else el.pause()}
+function nx(){const n=cat.length;if(!n)return -1;if(sh&&n>1){let j;do{j=Math.floor(Math.random()*n)}while(j===idx());return j}return(idx()+1)%n}
+function next(auto){if(!cat.length)return;const el=curEl();
+if(auto&&rp==='one'&&el){el.currentTime=0;el.play().catch(()=>{});return}
+const i=idx();if(auto&&!sh&&rp==='off'&&i===cat.length-1&&el){el.pause();el.currentTime=0;playUI();seekUI();return}
+const k=nx();if(k>=0)pick(k,true)}
+function prev(){if(!cat.length)return;const el=curEl();if(el&&el.currentTime>3){el.currentTime=0;return}
+const n=cat.length,i=idx();pick(sh&&n>1?nx():(i-1+n)%n,true)}
+E.ply.onclick=toggle;E.bpov.onclick=toggle;E.bply.onclick=toggle;
+E.nxt.onclick=()=>next(false);E.bnxt.onclick=()=>next(false);
+E.prv.onclick=prev;E.bprv.onclick=prev;
+const doSh=()=>{sh=!sh;shUI();save()};E.shuf.onclick=doSh;E.bshuf.onclick=doSh;
+const doRp=()=>{rp=rp==='off'?'all':rp==='all'?'one':'off';repUI();save()};E.rep.onclick=doRp;E.brep.onclick=doRp;
+const doMu=()=>{const el=curEl();if(!el)return;el.muted=!el.muted;savedMuted=el.muted;volUI();save()};E.mut.onclick=doMu;E.bmut.onclick=doMu;
+const onV=v=>{const el=curEl();if(!el)return;el.volume=v;savedVol=v;el.muted=false;savedMuted=false;volUI();save()};
+E.vol.oninput=()=>onV(+E.vol.value);E.bvol.oninput=()=>onV(+E.bvol.value);
+const onS=v=>{const el=curEl();if(el&&Number.isFinite(el.duration)){el.currentTime=v;E.ct1.textContent=fmt(v);E.bt1.textContent=fmt(v);rng(E.sk);rng(E.bsk)}};
+E.sk.oninput=()=>onS(+E.sk.value);E.bsk.oninput=()=>onS(+E.bsk.value);
+function expUI(){const o=E.big.open;E.exp.setAttribute('aria-expanded',String(o));E.exp.title=t(o?'closeP':'openP');E.exp.setAttribute('aria-label',E.exp.title);E.bcl.title=t('closeP');E.bcl.setAttribute('aria-label',t('closeP'))}
+E.exp.onclick=()=>{if(E.big.open)return;E.big.showModal();lock();expUI();npUI(cur());playUI();seekUI();volUI();repUI();shUI()};
+E.bcl.onclick=()=>E.big.close();
+E.big.addEventListener('close',()=>{lock();expUI();E.exp.focus({preventScroll:true})});
+document.addEventListener('keydown',e=>{if(blocked())return;const el=e.target;
+if(el&&(el.matches('input,textarea,select')||el.isContentEditable))return;
+switch(e.code){
+case'Space':if(el&&el.tagName==='BUTTON')return;e.preventDefault();toggle();break;
+case'ArrowRight':e.preventDefault();{const c=curEl();if(c&&Number.isFinite(c.duration))c.currentTime=Math.min(c.duration,c.currentTime+5)}break;
+case'ArrowLeft':e.preventDefault();{const c=curEl();if(c)c.currentTime=Math.max(0,c.currentTime-5)}break;
+case'ArrowUp':e.preventDefault();{const c=curEl();if(c){c.volume=Math.min(1,c.volume+.05);savedVol=c.volume;c.muted=false;savedMuted=false;volUI();save()}}break;
+case'ArrowDown':if(E.big.open||E.qsh.open)return;e.preventDefault();{const c=curEl();if(c){c.volume=Math.max(0,c.volume-.05);savedVol=c.volume;volUI();save()}}break;
+case'KeyN':next(false);break;case'KeyP':prev();break;case'KeyM':doMu();break;case'KeyS':doSh();break;case'KeyR':doRp();break}});
+A=mkEl();B=mkEl();
+ico(E.ply,'play');ico(E.prv,'prev');ico(E.nxt,'next');ico(E.shuf,'shuffle');ico(E.rep,'repeat');ico(E.mut,'volume');
+ico(E.exp,'chev');ico(E.bcl,'chev');ico(E.bprv,'prevS');ico(E.bnxt,'nextS');ico(E.bpov,'play');ico(E.bply,'play');
+ico(E.bshuf,'shuffle');ico(E.brep,'repeat');ico(E.bmut,'volume');ico(E.aeye,'eye');ico(E.bset,'bars');
+ico(E.vup,'up');ico(E.vdn,'down');
+shUI();repUI();volUI();voteUI();qUI();rng(E.sk);rng(E.bsk);setOn(false);
+setTheme(S.get('cg-theme')||'dark');setLang(S.get('cg-lang')||detect());mode2(true);
+netUI();if(!document.hidden){ping();poll()}
+const c0=cache();apply(c0&&c0.length?c0:norm(DEMO));
+(async()=>{try{
+const B2='https://www.gstatic.com/firebasejs/10.8.0/';
+const[a,u,f]=await Promise.all([import(B2+'firebase-app.js'),import(B2+'firebase-auth.js'),import(B2+'firebase-firestore.js')]);
+const app=a.initializeApp(CFG),au=u.getAuth(app),d=f.getFirestore(app);FB={a:au,d,au:u,fs:f};
+u.onAuthStateChanged(au,x=>{user=x;if(x){E.umail.textContent=x.email;E.prof.hidden=false}else E.prof.hidden=true});
+await load()}catch(e){FB=null;E.stInfo.textContent=t('offline');toast(t('offline'))}})();
+</script>
+</body>
+                  </html>
